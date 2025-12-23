@@ -1,12 +1,4 @@
-//had to add grabify to stop the skids in pandas stream
-//doxx yourself here: https://grabify.link/3N7WOE
-//window.location.href="https://grabify.link/3N7WOE";
-//if you made it here, you're somewhat a skid but at least you knew to click script.js
-//BLOOK DEFINITIONS START
-//if(!localStorage.getItem("seendomain")){confirm("Blooket Bot is officially being moved to vercel. The glitch version will no longer be recieving updates. Press OK to redirect.")?window.open("https://blooketbot.vercel.app/"):null;localStorage.setItem("seendomain",!0);}
-//im not making an official version for vercel so forget all of that nonsense up there
-//stewart can't code without react and firebase
-//bro had to pay someone to code auth into firebase
+
 const hitler = "1#0#1#0#1$3#0#0#1#6#0#0$0";
 var blooks = [
   "Chick",
@@ -2403,38 +2395,34 @@ async function connect(gid, name, icog, reqbody = !1) {
 }
 
 function bypassFilter(str) {
+  // Bypass using Cyrillic/Greek lookalike characters
   return str
-    .replace(/a/g, "\u0430")
-    .replace(/c/g, "\u0441")
-    .replace(/e/g, "\u0435")
-    .replace(/i/g, "\u0456")
-    .replace(/j/g, "\u0458")
-    .replace(/o/g, "\u043E")
-    .replace(/p/g, "\u0440")
-    .replace(/s/g, "\u0455")
-    .replace(/x/g, "\u0445")
-    .replace(/y/g, "\u0443")
-    .replace(/A/g, "\u0410")
-    .replace(/B/g, "\u0412")
-    .replace(/C/g, "\u0421")
-    .replace(/E/g, "\u0415")
-    .replace(/H/g, "\u041D")
-    .replace(/I/g, "\u0406")
-    .replace(/K/g, "\u039A")
-    .replace(/M/g, "\u041C")
-    .replace(/N/g, "\u039D")
-    .replace(/O/g, "\u041E")
-    .replace(/P/g, "\u0420")
-    .replace(/S/g, "\u0405")
-    .replace(/T/g, "\u0422")
-    .replace(/X/g, "\u0425")
-    .replace(/Y/g, "\u03A5")
-    .replace(/Z/g, "\u0396")
-    .replace(/!/g, "\u01C3")
-    .replace(/\./g, "\u2024")
-    .replace(/;/g, "\u037E")
-    .replace(/,/g, "\u201A")
-    .replace(/-/g, "\u2010");
+    // Lowercase - only replace common letters that have good lookalikes
+    .replace(/a/g, "\u0430")  // Cyrillic а
+    .replace(/c/g, "\u0441")  // Cyrillic с
+    .replace(/e/g, "\u0435")  // Cyrillic е
+    .replace(/i/g, "\u0456")  // Cyrillic і
+    .replace(/o/g, "\u043E")  // Cyrillic о
+    .replace(/p/g, "\u0440")  // Cyrillic р
+    .replace(/s/g, "\u0455")  // Cyrillic ѕ
+    .replace(/x/g, "\u0445")  // Cyrillic х
+    .replace(/y/g, "\u0443")  // Cyrillic у
+    // Uppercase
+    .replace(/A/g, "\u0410")  // Cyrillic А
+    .replace(/B/g, "\u0412")  // Cyrillic В
+    .replace(/C/g, "\u0421")  // Cyrillic С
+    .replace(/E/g, "\u0415")  // Cyrillic Е
+    .replace(/H/g, "\u041D")  // Cyrillic Н
+    .replace(/I/g, "\u0406")  // Cyrillic І
+    .replace(/K/g, "\u039A")  // Greek Κ
+    .replace(/M/g, "\u041C")  // Cyrillic М
+    .replace(/N/g, "\u039D")  // Greek Ν
+    .replace(/O/g, "\u041E")  // Cyrillic О
+    .replace(/P/g, "\u0420")  // Cyrillic Р
+    .replace(/S/g, "\u0405")  // Cyrillic Ѕ
+    .replace(/T/g, "\u0422")  // Cyrillic Т
+    .replace(/X/g, "\u0425")  // Cyrillic Х
+    .replace(/Y/g, "\u03A5"); // Greek Υ
 }
 
 async function setVal(path, val) {
