@@ -214,6 +214,8 @@
             background: var(--bg-input);
             border-radius: 12px;
             transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
         }
 
         .toggle-row:hover { background: rgba(108, 92, 231, 0.1); }
@@ -224,16 +226,19 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            pointer-events: none;
         }
 
         checkbox {
             position: relative;
             width: 50px; height: 28px;
+            min-width: 50px;
             background: var(--bg-dark);
             border-radius: 14px;
             cursor: pointer;
             transition: all 0.3s ease;
             display: block;
+            pointer-events: none;
         }
 
         checkbox::before {
@@ -548,17 +553,17 @@
             </div>
 
             <div class="toggles">
-                <div class="toggle-row">
+                <div class="toggle-row" onclick="tog('icogmode')">
                     <div class="toggle-label"><span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 11c0-1 1-2 2-2h4c1 0 2 1 2 2"/><circle cx="9" cy="13" r="2"/><circle cx="15" cy="13" r="2"/></svg></span> Incognito Mode</div>
                     <checkbox id="icogmode" checked="true"></checkbox>
                 </div>
 
-                <div class="toggle-row">
+                <div class="toggle-row" onclick="tog('bcf')">
                     <div class="toggle-label"><span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0" stroke-linecap="round"/></svg></span> Bypass Filter</div>
                     <checkbox id="bcf"></checkbox>
                 </div>
 
-                <div class="toggle-row">
+                <div class="toggle-row" onclick="tog('fpswitch')">
                     <div class="toggle-label"><span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="gold" stroke-width="2"><path d="M6 9l6-6 6 6"/><rect x="4" y="9" width="16" height="10" rx="1"/><circle cx="12" cy="14" r="3" fill="gold"/><path d="M12 17v4M8 21h8"/></svg></span> First Place Mode</div>
                     <checkbox id="fpswitch" checked="true"></checkbox>
                 </div>
@@ -633,21 +638,14 @@
             setTimeout(() => e.classList.remove("show"), 4000);
         }
 
-        // Attach toggle handlers immediately (DOM is already ready since script is at bottom)
-        (function() {
-            var checkboxes = document.querySelectorAll("checkbox");
-            for (var i = 0; i < checkboxes.length; i++) {
-                (function(cb) {
-                    cb.onclick = function() {
-                        if (cb.hasAttribute("checked")) {
-                            cb.removeAttribute("checked");
-                        } else {
-                            cb.setAttribute("checked", "true");
-                        }
-                    };
-                })(checkboxes[i]);
+        function tog(id) {
+            var cb = document.getElementById(id);
+            if (cb.hasAttribute("checked")) {
+                cb.removeAttribute("checked");
+            } else {
+                cb.setAttribute("checked", "true");
             }
-        })();
+        }
     </script>
     <script src="script.js"></script>
 </body>
