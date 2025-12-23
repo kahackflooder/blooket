@@ -377,6 +377,9 @@
             padding: 15px;
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             cursor: move;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
             user-select: none;
             font-weight: 700;
             border-radius: 16px 16px 0 0;
@@ -414,6 +417,32 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
+
+        .icon { width: 1.2em; height: 1.2em; display: inline-block; vertical-align: middle; fill: currentColor; }
+        .icon-lg { width: 3rem; height: 3rem; }
+        .icon-btn { width: 1.4em; height: 1.4em; margin-right: 8px; }
+
+        /* iPad & Mobile Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 20px 15px; }
+            .card { padding: 20px; }
+            .title { font-size: 2rem; }
+            .logo { font-size: 2.5rem; }
+            .icon-lg { width: 2.5rem; height: 2.5rem; }
+            input[type="text"], select { font-size: 16px !important; } /* Prevents iOS zoom on focus */
+            .join-btn { padding: 16px; font-size: 1.1rem; }
+            .chatcontainer { width: 280px; height: 200px; }
+        }
+
+        /* Touch-friendly toggles */
+        checkbox {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .toggle-row {
+            -webkit-tap-highlight-color: transparent;
+        }
     </style>
 </head>
 <body>
@@ -432,9 +461,9 @@
 
     <div class="container">
         <div class="header">
-            <div class="logo">🎮</div>
+            <div class="logo"><svg class="icon icon-lg" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="3"/><circle cx="8" cy="12" r="2" fill="var(--secondary)"/><circle cx="16" cy="10" r="1.5" fill="var(--accent)"/><circle cx="16" cy="14" r="1.5" fill="var(--primary)"/><line x1="5" y1="12" x2="4" y2="12"/><line x1="8" y1="9" x2="8" y2="8"/></svg></div>
             <h1 class="title">Blooket Bot</h1>
-            <p class="subtitle">Join any game instantly</p>
+            <p class="subtitle">flood any game instantly</p>
         </div>
 
         <div class="status-bar">
@@ -448,7 +477,7 @@
             <div class="input-group">
                 <label class="input-label">Game Code</label>
                 <div class="input-wrapper">
-                    <span class="input-icon">🎯</span>
+                    <span class="input-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2" fill="var(--accent)"/></svg></span>
                     <input type="text" id="gcode" placeholder="1234567" maxlength="7">
                 </div>
             </div>
@@ -456,7 +485,7 @@
             <div class="input-group">
                 <label class="input-label">Nickname</label>
                 <div class="input-wrapper">
-                    <span class="input-icon">👤</span>
+                    <span class="input-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg></span>
                     <input type="text" id="gname" placeholder="YourName">
                 </div>
             </div>
@@ -464,7 +493,7 @@
             <div class="input-group">
                 <label class="input-label">Number of Bots</label>
                 <div class="input-wrapper">
-                    <span class="input-icon">🤖</span>
+                    <span class="input-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><rect x="5" y="4" width="14" height="12" rx="2"/><circle cx="9" cy="10" r="1.5" fill="var(--primary)"/><circle cx="15" cy="10" r="1.5" fill="var(--primary)"/><path d="M9 14h6"/><line x1="12" y1="16" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/></svg></span>
                     <input type="text" id="botcount" placeholder="1" value="1" maxlength="3">
                 </div>
             </div>
@@ -472,7 +501,7 @@
             <div class="input-group">
                 <label class="input-label">Blook</label>
                 <div class="input-wrapper">
-                    <span class="input-icon">🎨</span>
+                    <span class="input-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2" stroke="var(--secondary)"/><circle cx="9" cy="10" r="1" fill="var(--primary)"/><circle cx="15" cy="10" r="1" fill="var(--primary)"/></svg></span>
                     <select id="blookSelect">
                         <option value="hitler">🎨 German Painter</option>
                         <option value="random">🎲 Random</option>
@@ -520,24 +549,24 @@
 
             <div class="toggles">
                 <div class="toggle-row">
-                    <div class="toggle-label"><span>🎭</span> Incognito Mode</div>
+                    <div class="toggle-label"><span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 11c0-1 1-2 2-2h4c1 0 2 1 2 2"/><circle cx="9" cy="13" r="2"/><circle cx="15" cy="13" r="2"/></svg></span> Incognito Mode</div>
                     <checkbox id="icogmode" checked="true"></checkbox>
                 </div>
 
                 <div class="toggle-row">
-                    <div class="toggle-label"><span>🔓</span> Bypass Filter</div>
+                    <div class="toggle-label"><span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="var(--secondary)" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0" stroke-linecap="round"/></svg></span> Bypass Filter</div>
                     <checkbox id="bcf"></checkbox>
                 </div>
 
                 <div class="toggle-row">
-                    <div class="toggle-label"><span>🏆</span> First Place Mode</div>
+                    <div class="toggle-label"><span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="gold" stroke-width="2"><path d="M6 9l6-6 6 6"/><rect x="4" y="9" width="16" height="10" rx="1"/><circle cx="12" cy="14" r="3" fill="gold"/><path d="M12 17v4M8 21h8"/></svg></span> First Place Mode</div>
                     <checkbox id="fpswitch" checked="true"></checkbox>
                 </div>
             </div>
 
-            <button class="join-btn" onclick="join()">🚀 Join Game</button>
+            <button class="join-btn" onclick="join()"><svg class="icon icon-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.5 16.5l3-3m0 0l9-9a3 3 0 014.5 4.5l-9 9m-4.5 0l4.5-4.5m-4.5 4.5l-3 3m7.5-7.5l-3 3"/><path d="M6 18l-3 3m12-12l3-3" stroke-linecap="round"/></svg>Join Game</button>
             
-            <button class="join-btn kill-btn" onclick="killAllBots()" style="margin-top: 10px; background: linear-gradient(135deg, var(--error), #c0392b);">💀 Kill All Bots</button>
+            <button class="join-btn kill-btn" onclick="killAllBots()" style="margin-top: 10px; background: linear-gradient(135deg, var(--error), #c0392b);"><svg class="icon icon-btn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="8"/><circle cx="9" cy="9" r="2" fill="currentColor"/><circle cx="15" cy="9" r="2" fill="currentColor"/><path d="M8 16h8M10 16v2M14 16v2"/></svg>Kill All Bots</button>
             
             <div class="bot-counter" id="botCounter" style="text-align: center; margin-top: 15px; padding: 10px; background: var(--bg-input); border-radius: 10px; display: none;">
                 <span style="color: var(--text-muted); font-size: 0.85rem;">Active Bots: </span>
@@ -546,15 +575,11 @@
         </div>
 
         <div id="ctrlpanel"></div>
-
-        <div class="links">
-            <a href="https://discord.gg/FcYy4uHUws" target="_blank">💬 Join Discord</a>
-        </div>
     </div>
 
     <!-- Chat Window -->
     <div class="chat" style="left: 20px; top: 100px;">
-        <div id="drag">💬 Chat</div>
+        <div id="drag"><svg class="icon" style="margin-right: 8px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Chat</div>
         <div class="chatcontainer">
             <div class="chatmsg"></div>
         </div>
@@ -608,18 +633,19 @@
             setTimeout(() => e.classList.remove("show"), 4000);
         }
 
-        // Wait for DOM to be ready before attaching toggle handlers
-        document.addEventListener("DOMContentLoaded", function() {
-            document.querySelectorAll("checkbox").forEach((e) => {
-                e.addEventListener("click", function () {
-                    if (e.getAttribute("checked")) e.removeAttribute("checked");
-                    else e.setAttribute("checked", "true");
-                });
-            });
-        });
+        // Attach toggle handlers immediately (DOM is already ready since script is at bottom)
+        (function() {
+            var checkboxes = document.querySelectorAll("checkbox");
+            for (var i = 0; i < checkboxes.length; i++) {
+                (function(cb) {
+                    cb.onclick = function() {
+                        if (cb.hasAttribute("checked")) {
+                            cb.removeAttribute("checked");
+                        } else {
+                            cb.setAttribute("checked", "true");
+                        }
+                    };
+                })(checkboxes[i]);
+            }
+        })();
     </script>
-
-    <script src="script.js"></script>
-</body>
-</html>
-
