@@ -427,19 +427,17 @@
         .icon-lg { width: 3rem; height: 3rem; }
         .icon-btn { width: 1.4em; height: 1.4em; margin-right: 8px; }
 
-        /* iPad & Mobile Responsive */
         @media (max-width: 768px) {
             .container { padding: 20px 15px; }
             .card { padding: 20px; }
             .title { font-size: 2rem; }
             .logo { font-size: 2.5rem; }
             .icon-lg { width: 2.5rem; height: 2.5rem; }
-            input[type="text"], select { font-size: 16px !important; } /* Prevents iOS zoom on focus */
+            input[type="text"], select { font-size: 16px !important; }
             .join-btn { padding: 16px; font-size: 1.1rem; }
             .chatcontainer { width: 280px; height: 200px; }
         }
 
-        /* Touch-friendly toggles */
         checkbox {
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
@@ -474,6 +472,7 @@
         <div class="status-bar">
             <div class="status-dot"></div>
             <span id="status">Loading...</span>
+            <span style="margin-left: auto; font-size: 0.75rem; cursor: help;" id="backend-status" title="Backend URL status">⏳ Loading backend...</span>
         </div>
 
         <div class="card" id="cc">
@@ -582,7 +581,6 @@
         <div id="ctrlpanel"></div>
     </div>
 
-    <!-- Chat Window -->
     <div class="chat" style="left: 20px; top: 100px;">
         <div id="drag"><svg class="icon" style="margin-right: 8px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Chat</div>
         <div class="chatcontainer">
@@ -591,7 +589,6 @@
         <input type="text" id="chat" placeholder="Type a message...">
     </div>
 
-    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
         import { getAuth, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
@@ -618,12 +615,11 @@
             var cin = document.getElementById("gcode");
             var name = document.getElementById("gname");
             var botCount = parseInt(document.getElementById("botcount").value) || 1;
-            botCount = Math.min(Math.max(botCount, 1), 100); // Limit 1-100 bots
+            botCount = Math.min(Math.max(botCount, 1), 100);
             
             var icog = document.getElementById("icogmode").getAttribute("checked") ? true : false;
             var selectedBlook = document.getElementById("blookSelect").value;
             
-            // Join multiple bots simultaneously
             joinMultipleBots(cin.value, name.value, botCount, icog, selectedBlook);
         }
 
