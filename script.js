@@ -274,8 +274,6 @@ var blooks = [
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
-//BLOOK DEFINITIONS END
-//document.getElementById("globalmsg").innerHTML = ("Blooket Bot is currently down, join the discord to find out when it might be back up"); // set to null for no msg
 var fblooks = [
   "Chick",
   "Chicken",
@@ -316,19 +314,19 @@ var fblooks = [
   "Capuchin",
 ];
 var botinfo = {};
-var allBots = []; // Array to hold all connected bots
+var allBots = []; 
 let canJoin = true;
 var gameobject = {};
 var tokens = [];
 var oname;
 var unreads = 0;
-var chosenBlook = "random"; // Store chosen blook for auto-restore
-var lastGameStage = null; // Track game stage to detect game start
-var blookEnforcerInterval = null; // Interval to enforce blook
+var chosenBlook = "random"; 
+var lastGameStage = null; 
+var blookEnforcerInterval = null; 
 
-// Start enforcing the chosen blook every 500ms
+
 function startBlookEnforcer() {
-  stopBlookEnforcer(); // Clear any existing interval
+  stopBlookEnforcer(); 
   if (chosenBlook && chosenBlook !== "random") {
     console.log("[BLOOK ENFORCER] Starting - will enforce:", chosenBlook);
     blookEnforcerInterval = setInterval(() => {
@@ -1610,10 +1608,9 @@ var global = [
     name: "Set Blook",
     values: blooks,
     action: function (val) {
-      chosenBlook = val; // Update stored preference
+      chosenBlook = val;
       setUserVal("b", val);
       console.log("[BLOOK] Set all bots to:", val);
-      // Start/stop enforcer based on selection
       if (val === "random") {
         stopBlookEnforcer();
       } else {
@@ -1689,8 +1686,6 @@ function sendChatMsg(msg) {
 function setTeamVal(path, val) {
   return setVal(`/${botinfo.gid}/a/${botinfo.name}/${path}`, val);
 }
-//ben sucks at coding guys bro uses base64 for his images
-//if you're reading this I hope blooket goes bankrupt because of all the poor kids you have scammed
 function onUpdateData(datav) {
   if (!gameobject || !gameobject.s) {
     onFirstData(datav);
@@ -1699,15 +1694,13 @@ function onUpdateData(datav) {
     handleChat(datav);
   }
   
-  // Auto-apply chosen blook when game starts (stage changes from lobby)
   var currentStage = datav?.stg || datav?.s?.stg;
   if (lastGameStage !== currentStage && currentStage && lastGameStage === null || lastGameStage === "waiting") {
-    // Game just started! Apply chosen blook to all bots
     if (chosenBlook && chosenBlook !== "random" && allBots.length > 0) {
       console.log("[AUTO-BLOOK] Game started! Applying blook:", chosenBlook);
       setTimeout(() => {
         applyBlookToAllBots(chosenBlook);
-      }, 500); // Small delay to ensure game is ready
+      }, 500);
     }
   }
   lastGameStage = currentStage;
@@ -1766,7 +1759,6 @@ function joinGame(code, name, icog) {
   setTimeout(() => { canJoin = true; }, 3000);
 }
 
-//setVal(`/${botinfo.gid}/a/${botinfo.name}/d`,56)
 function onFirstData(d) {
   var gm = d.s.t;
   if (gm === "Rush") {
@@ -1817,7 +1809,6 @@ function leaveGame() {
   }
 }
 
-// Apply chosen blook to all connected bots
 async function applyBlookToAllBots(blookName) {
   if (allBots.length === 0) return;
   
@@ -1839,7 +1830,6 @@ async function applyBlookToAllBots(blookName) {
   console.log("[AUTO-BLOOK] Applied successfully!");
 }
 
-// Multi-bot functions
 function updateBotCounter() {
   var counter = document.getElementById("botCounter");
   var countSpan = document.getElementById("activeBotCount");
@@ -1882,7 +1872,6 @@ async function connectBot(gid, name, icog, botIndex, selectedBlook = "random") {
     await signInWithCustomToken(auth, body.fbToken);
     const db = getDatabase(liveApp);
     
-    // Determine which blook to use
     var blookToUse;
     if (selectedBlook === "random") {
       blookToUse = fblooks[Math.floor(Math.random() * fblooks.length)];
@@ -1915,23 +1904,19 @@ async function joinMultipleBots(code, baseName, count, icog, selectedBlook = "ra
   }
   canJoin = false;
   
-  // Store the chosen blook for auto-restore when game starts
   chosenBlook = selectedBlook;
-  lastGameStage = null; // Reset stage tracker for new game
+  lastGameStage = null;
   console.log("[JOIN] Chosen blook stored:", chosenBlook);
   
-  // First, leave any existing bots (this also stops any old enforcer)
   leaveAllBots();
   
   updateStatus(`Joining ${count} bots...`);
   
-  // Show cheats panel immediately with unknown gamemode (will update when data arrives)
   renderCheats("Unknown");
   
   var bcf = document.getElementById("bcf").getAttribute("checked");
   var fp = document.getElementById("fpswitch").getAttribute("checked");
   
-  // Create array of join promises for simultaneous joining
   var joinPromises = [];
   
   for (var i = 0; i < count; i++) {
@@ -1944,28 +1929,22 @@ async function joinMultipleBots(code, baseName, count, icog, selectedBlook = "ra
       name = String.fromCharCode(32) + String.fromCharCode(32) + name;
     }
     
-    // Push promise without await - they all start simultaneously
     joinPromises.push(connectBot(code, name, icog, i, selectedBlook));
   }
   
-  // Wait for all bots to join at the same time
   var results = await Promise.all(joinPromises);
   
-  // Filter successful connections
   allBots = results.filter(bot => bot !== null && bot.connected);
   
-  // Set the first bot as the main botinfo for compatibility
   if (allBots.length > 0) {
     botinfo = allBots[0];
     botinfo.connected = true;
     
-    // START BLOOK ENFORCER NOW - after bots are connected!
     if (chosenBlook && chosenBlook !== "random") {
       console.log("[BLOOK ENFORCER] Starting after bots connected, blook:", chosenBlook);
       startBlookEnforcer();
     }
     
-    // Set up game data listener on first bot
     onValue(ref(botinfo.fbdb, `${code}`), (data) => {
       if (!botinfo.connected) return;
       onUpdateData(data.val());
@@ -2436,7 +2415,6 @@ function updateBackendStatus(isRemote, url, updated = null) {
   }
 }
 
-// Load backend URL on page load
 loadBackendUrl();
 
 async function genToken(gid, name) {
@@ -2483,8 +2461,6 @@ function addChatMessage(a) {
     .querySelector(".chatcontainer")
     .insertBefore(d, document.querySelector(".chatcontainer > div"));
 }
-//CODE END
-//CHECKMARK CODE
 document.querySelectorAll("checkbox").forEach((e) => {
   e.addEventListener("click", function () {
     if (e.getAttribute("checked")) {
@@ -2494,7 +2470,6 @@ document.querySelectorAll("checkbox").forEach((e) => {
     }
   });
 });
-//END OF CHECKMARK CODE
 function genMessage(msg, amt) {
   var t = "";
   for (var i = 0; i < amt; i++) {
@@ -2502,7 +2477,6 @@ function genMessage(msg, amt) {
   }
   return t;
 }
-//firebase code
 async function connect(gid, name, icog, reqbody = !1) {
   botinfo.connected = false;
   botinfo.connecting = true;
