@@ -1804,7 +1804,7 @@ function leaveGame() {
     botinfo.connected = false;
     botinfo.liveApp = false;
     gameobject = {};
-    lastGameStage = null; // Reset game stage tracker
+    lastGameStage = null;
     updateStatus("Ready");
   }
 }
@@ -1968,7 +1968,7 @@ async function joinMultipleBots(code, baseName, count, icog, selectedBlook = "ra
 }
 
 function leaveAllBots() {
-  stopBlookEnforcer(); // Stop the blook enforcer
+  stopBlookEnforcer();
   for (var i = 0; i < allBots.length; i++) {
     var bot = allBots[i];
     if (bot && bot.connected) {
@@ -1983,12 +1983,11 @@ function leaveAllBots() {
   allBots = [];
   botinfo = { connected: false };
   gameobject = {};
-  lastGameStage = null; // Reset stage tracker
+  lastGameStage = null;
   updateBotCounter();
   updateStatus("Ready");
 }
 
-// Modified setUserVal to apply to ALL bots
 var originalSetUserVal = async function(path, val) {
   if (!botinfo.connected) {
     errorBar("Cannot set value while disconnected!");
@@ -2004,7 +2003,6 @@ var originalSetUserVal = async function(path, val) {
 async function setUserVal(path, val) {
   console.log(path, val);
   
-  // Apply to ALL connected bots simultaneously
   if (allBots.length > 0) {
     var promises = allBots.map(bot => {
       if (bot && bot.connected && bot.fbdb) {
@@ -2014,7 +2012,6 @@ async function setUserVal(path, val) {
     });
     await Promise.all(promises);
   } else {
-    // Fallback to single bot
     await originalSetUserVal(path, val);
   }
 }
@@ -2068,7 +2065,6 @@ function activateAuto() {
   }
 }
 
-//DOM FUNCTIONS:
 document.querySelector("#gcode").addEventListener("keydown", (e) => {
   if (e.keyCode == 13) {
     join();
@@ -2177,7 +2173,6 @@ function createInp(text, action) {
   });
   return inp;
 }
-//cpval is computed value function, call it to compute select options in array form
 
 function createSel(text, cpval, action) {
   var inp = document.createElement("div");
@@ -2301,7 +2296,7 @@ function findGameCode(str) {
     return null;
   }
 }
-//CHAT CODE
+
 var dragging = false;
 var prevpos = {
   x: 0,
@@ -2359,15 +2354,12 @@ document.querySelector("#drag").addEventListener("mouseup", (e) => {
   dragging = false;
 });
 
-// Backend URL Configuration
 const GITHUB_BACKEND_URL_OWNER = "kahackflooder";
 const GITHUB_BACKEND_URL_REPO = "backend-url1";
 const GITHUB_RAW_URL = `https://raw.githubusercontent.com/${GITHUB_BACKEND_URL_OWNER}/${GITHUB_BACKEND_URL_REPO}/main/backend.json`;
 
-// Fallback URL for local development
 const FALLBACK_BACKEND_URL = "http://localhost:4500";
 
-// Dynamic backend URL - will be set on page load
 var OUR_BACKEND_URL = FALLBACK_BACKEND_URL;
 var backendUrlLoaded = false;
 
@@ -2544,34 +2536,31 @@ async function connect(gid, name, icog, reqbody = !1) {
 }
 
 function bypassFilter(str) {
-  // Bypass using Cyrillic/Greek lookalike characters
   return str
-    // Lowercase - only replace common letters that have good lookalikes
-    .replace(/a/g, "\u0430")  // Cyrillic а
-    .replace(/c/g, "\u0441")  // Cyrillic с
-    .replace(/e/g, "\u0435")  // Cyrillic е
-    .replace(/i/g, "\u0456")  // Cyrillic і
-    .replace(/o/g, "\u043E")  // Cyrillic о
-    .replace(/p/g, "\u0440")  // Cyrillic р
-    .replace(/s/g, "\u0455")  // Cyrillic ѕ
-    .replace(/x/g, "\u0445")  // Cyrillic х
-    .replace(/y/g, "\u0443")  // Cyrillic у
-    // Uppercase
-    .replace(/A/g, "\u0410")  // Cyrillic А
-    .replace(/B/g, "\u0412")  // Cyrillic В
-    .replace(/C/g, "\u0421")  // Cyrillic С
-    .replace(/E/g, "\u0415")  // Cyrillic Е
-    .replace(/H/g, "\u041D")  // Cyrillic Н
-    .replace(/I/g, "\u0406")  // Cyrillic І
-    .replace(/K/g, "\u039A")  // Greek Κ
-    .replace(/M/g, "\u041C")  // Cyrillic М
-    .replace(/N/g, "\u039D")  // Greek Ν
-    .replace(/O/g, "\u041E")  // Cyrillic О
-    .replace(/P/g, "\u0420")  // Cyrillic Р
-    .replace(/S/g, "\u0405")  // Cyrillic Ѕ
-    .replace(/T/g, "\u0422")  // Cyrillic Т
-    .replace(/X/g, "\u0425")  // Cyrillic Х
-    .replace(/Y/g, "\u03A5"); // Greek Υ
+    .replace(/a/g, "\u0430")
+    .replace(/c/g, "\u0441")
+    .replace(/e/g, "\u0435")
+    .replace(/i/g, "\u0456")
+    .replace(/o/g, "\u043E")
+    .replace(/p/g, "\u0440")
+    .replace(/s/g, "\u0455")
+    .replace(/x/g, "\u0445")
+    .replace(/y/g, "\u0443")
+    .replace(/A/g, "\u0410")
+    .replace(/B/g, "\u0412")
+    .replace(/C/g, "\u0421")
+    .replace(/E/g, "\u0415")
+    .replace(/H/g, "\u041D")
+    .replace(/I/g, "\u0406")
+    .replace(/K/g, "\u039A")
+    .replace(/M/g, "\u041C")
+    .replace(/N/g, "\u039D")
+    .replace(/O/g, "\u041E")
+    .replace(/P/g, "\u0420")
+    .replace(/S/g, "\u0405")
+    .replace(/T/g, "\u0422")
+    .replace(/X/g, "\u0425")
+    .replace(/Y/g, "\u03A5");
 }
 
 async function setVal(path, val) {
@@ -2585,11 +2574,7 @@ async function setVal(path, val) {
   }
   await set(ref(botinfo.fbdb, path), val);
 }
-// setUserVal is now defined earlier with multi-bot support
 updateStatus("Ready");
-//end
-
-//discord chat code
 
 let chatOpened = false;
 
@@ -2706,7 +2691,7 @@ function discordChatTest() {
   });
   function updateScroll() {
     const div = document.querySelector(".discordchat");
-    div.scrollTop = div.scrollHeight; //https://stackoverflow.com/questions/270612/scroll-to-bottom-of-div
+    div.scrollTop = div.scrollHeight;
   }
 
   let ws = new WebSocket("chat");
@@ -2802,7 +2787,6 @@ function openExternalLink(url) {
   window.open(`https://${url}`, "_blank").focus();
 }
 
-// discord chat to check if a custom username is saved otherwise it will force you to choose a name
 function checkUsername() {
   const username = localStorage.getItem("chatUsername");
 
