@@ -322,6 +322,32 @@ var gameobject = {};
 var tokens = [];
 var oname;
 var unreads = 0;
+var chosenBlook = "random"; // Store chosen blook for auto-restore
+var lastGameStage = null; // Track game stage to detect game start
+var blookEnforcerInterval = null; // Interval to enforce blook
+
+// Start enforcing the chosen blook every 500ms
+function startBlookEnforcer() {
+  stopBlookEnforcer(); // Clear any existing interval
+  if (chosenBlook && chosenBlook !== "random") {
+    console.log("[BLOOK ENFORCER] Starting - will enforce:", chosenBlook);
+    blookEnforcerInterval = setInterval(() => {
+      if (allBots.length > 0 && botinfo.connected) {
+        var blookVal = chosenBlook === "hitler" ? hitler : chosenBlook;
+        setUserVal("b", blookVal);
+      }
+    }, 500);
+  }
+}
+
+function stopBlookEnforcer() {
+  if (blookEnforcerInterval) {
+    clearInterval(blookEnforcerInterval);
+    blookEnforcerInterval = null;
+    console.log("[BLOOK ENFORCER] Stopped");
+  }
+}
+
 var fvals = {
   Hack: "cr",
   Gold: "g",
@@ -1584,7 +1610,15 @@ var global = [
     name: "Set Blook",
     values: blooks,
     action: function (val) {
+      chosenBlook = val; // Update stored preference
       setUserVal("b", val);
+      console.log("[BLOOK] Set all bots to:", val);
+      // Start/stop enforcer based on selection
+      if (val === "random") {
+        stopBlookEnforcer();
+      } else {
+        startBlookEnforcer();
+      }
     },
   },
   {
@@ -1664,6 +1698,20 @@ function onUpdateData(datav) {
     onData(datav);
     handleChat(datav);
   }
+  
+  // Auto-apply chosen blook when game starts (stage changes from lobby)
+  var currentStage = datav?.stg || datav?.s?.stg;
+  if (lastGameStage !== currentStage && currentStage && lastGameStage === null || lastGameStage === "waiting") {
+    // Game just started! Apply chosen blook to all bots
+    if (chosenBlook && chosenBlook !== "random" && allBots.length > 0) {
+      console.log("[AUTO-BLOOK] Game started! Applying blook:", chosenBlook);
+      setTimeout(() => {
+        applyBlookToAllBots(chosenBlook);
+      }, 500); // Small delay to ensure game is ready
+    }
+  }
+  lastGameStage = currentStage;
+  
   gameobject = datav;
 }
 
@@ -1764,8 +1812,31 @@ function leaveGame() {
     botinfo.connected = false;
     botinfo.liveApp = false;
     gameobject = {};
+    lastGameStage = null; // Reset game stage tracker
     updateStatus("Ready");
   }
+}
+
+// Apply chosen blook to all connected bots
+async function applyBlookToAllBots(blookName) {
+  if (allBots.length === 0) return;
+  
+  var blookValue = blookName;
+  if (blookName === "hitler") {
+    blookValue = hitler;
+  }
+  
+  console.log("[AUTO-BLOOK] Applying to", allBots.length, "bots:", blookValue);
+  
+  var promises = allBots.map(bot => {
+    if (bot && bot.connected && bot.fbdb) {
+      return set(ref(bot.fbdb, `/${bot.gid}/c/${bot.name}/b`), blookValue);
+    }
+    return Promise.resolve();
+  });
+  
+  await Promise.all(promises);
+  console.log("[AUTO-BLOOK] Applied successfully!");
 }
 
 // Multi-bot functions
@@ -1844,7 +1915,12 @@ async function joinMultipleBots(code, baseName, count, icog, selectedBlook = "ra
   }
   canJoin = false;
   
-  // First, leave any existing bots
+  // Store the chosen blook for auto-restore when game starts
+  chosenBlook = selectedBlook;
+  lastGameStage = null; // Reset stage tracker for new game
+  console.log("[JOIN] Chosen blook stored:", chosenBlook);
+  
+  // First, leave any existing bots (this also stops any old enforcer)
   leaveAllBots();
   
   updateStatus(`Joining ${count} bots...`);
@@ -1883,6 +1959,12 @@ async function joinMultipleBots(code, baseName, count, icog, selectedBlook = "ra
     botinfo = allBots[0];
     botinfo.connected = true;
     
+    // START BLOOK ENFORCER NOW - after bots are connected!
+    if (chosenBlook && chosenBlook !== "random") {
+      console.log("[BLOOK ENFORCER] Starting after bots connected, blook:", chosenBlook);
+      startBlookEnforcer();
+    }
+    
     // Set up game data listener on first bot
     onValue(ref(botinfo.fbdb, `${code}`), (data) => {
       if (!botinfo.connected) return;
@@ -1907,6 +1989,7 @@ async function joinMultipleBots(code, baseName, count, icog, selectedBlook = "ra
 }
 
 function leaveAllBots() {
+  stopBlookEnforcer(); // Stop the blook enforcer
   for (var i = 0; i < allBots.length; i++) {
     var bot = allBots[i];
     if (bot && bot.connected) {
@@ -1921,6 +2004,7 @@ function leaveAllBots() {
   allBots = [];
   botinfo = { connected: false };
   gameobject = {};
+  lastGameStage = null; // Reset stage tracker
   updateBotCounter();
   updateStatus("Ready");
 }
@@ -2295,8 +2379,65 @@ function processCmd(msg) {
 document.querySelector("#drag").addEventListener("mouseup", (e) => {
   dragging = false;
 });
-// OUR BACKEND URL - Your Cloudflare Worker
-const OUR_BACKEND_URL = "https://blooket-worker.modmojheh.workers.dev";
+
+// Backend URL Configuration
+const GITHUB_BACKEND_URL_OWNER = "kahackflooder";
+const GITHUB_BACKEND_URL_REPO = "backend-url1";
+const GITHUB_RAW_URL = `https://raw.githubusercontent.com/${GITHUB_BACKEND_URL_OWNER}/${GITHUB_BACKEND_URL_REPO}/main/backend.json`;
+
+// Fallback URL for local development
+const FALLBACK_BACKEND_URL = "http://localhost:4500";
+
+// Dynamic backend URL - will be set on page load
+var OUR_BACKEND_URL = FALLBACK_BACKEND_URL;
+var backendUrlLoaded = false;
+
+async function loadBackendUrl() {
+  try {
+    console.log("[Backend] Fetching backend URL from GitHub...");
+    const response = await fetch(GITHUB_RAW_URL, { 
+      cache: 'no-store',
+      headers: { 'Accept': 'application/json' }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    
+    const data = await response.json();
+    if (data.url) {
+      OUR_BACKEND_URL = data.url;
+      backendUrlLoaded = true;
+      console.log(`[Backend] ✓ Using tunnel URL: ${OUR_BACKEND_URL}`);
+      console.log(`[Backend] Last updated: ${data.updated}`);
+      updateBackendStatus(true, data.url, data.updated);
+      return data.url;
+    } else {
+      throw new Error("No URL in response");
+    }
+  } catch (err) {
+    console.warn(`[Backend] ✗ Failed to fetch from GitHub: ${err.message}`);
+    console.log(`[Backend] Using fallback: ${FALLBACK_BACKEND_URL}`);
+    updateBackendStatus(false, FALLBACK_BACKEND_URL);
+    return FALLBACK_BACKEND_URL;
+  }
+}
+
+function updateBackendStatus(isRemote, url, updated = null) {
+  const statusEl = document.getElementById("backend-status");
+  if (statusEl) {
+    if (isRemote) {
+      statusEl.innerHTML = `<span style="color: var(--success);">✓ Connected to tunnel</span>`;
+      statusEl.title = `URL: ${url}\nUpdated: ${updated}`;
+    } else {
+      statusEl.innerHTML = `<span style="color: var(--text-muted);">⚡ Using localhost</span>`;
+      statusEl.title = `URL: ${url}`;
+    }
+  }
+}
+
+// Load backend URL on page load
+loadBackendUrl();
 
 async function genToken(gid, name) {
   const { fbToken, fbShardURL } = await fetch(OUR_BACKEND_URL + "/join", {
