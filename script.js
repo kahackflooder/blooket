@@ -1546,6 +1546,37 @@ var cheats = {
       },
     },
   ],
+  Unknown: [
+    {
+      type: "button",
+      name: "Freeze Scoreboard",
+      action: function (a) {
+        if (a.frozen != undefined) {
+          a.frozen = !a.frozen;
+        } else {
+          a.frozen = true;
+        }
+        if (a.frozen) {
+          setUserVal("tat/t", "t");
+        } else {
+          setUserVal("tat", "t");
+        }
+        a.innerText = a.frozen ? "Unfreeze Scoreboard" : "Freeze Scoreboard";
+      },
+    },
+    {
+      type: "input",
+      name: "Flood Alert Box",
+      action: function (stext) {
+        setUserVal(
+          "tat",
+          `${botinfo.name}:${Date.now()}${new Array(1700)
+            .fill(stext + " ")
+            .join("")}`
+        );
+      },
+    },
+  ],
 };
 var global = [
   {
@@ -1817,6 +1848,9 @@ async function joinMultipleBots(code, baseName, count, icog, selectedBlook = "ra
   leaveAllBots();
   
   updateStatus(`Joining ${count} bots...`);
+  
+  // Show cheats panel immediately with unknown gamemode (will update when data arrives)
+  renderCheats("Unknown");
   
   var bcf = document.getElementById("bcf").getAttribute("checked");
   var fp = document.getElementById("fpswitch").getAttribute("checked");
@@ -2261,8 +2295,8 @@ function processCmd(msg) {
 document.querySelector("#drag").addEventListener("mouseup", (e) => {
   dragging = false;
 });
-// OUR BACKEND URL - Cloudflare Worker proxy
-const OUR_BACKEND_URL = "https://blooket.mojhehmod.workers.dev";
+// OUR BACKEND URL - Your Cloudflare Worker
+const OUR_BACKEND_URL = "https://blooket-worker.modmojheh.workers.dev";
 
 async function genToken(gid, name) {
   const { fbToken, fbShardURL } = await fetch(OUR_BACKEND_URL + "/join", {
