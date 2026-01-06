@@ -543,18 +543,48 @@ var cheats = {
             alert("Ad text cannot include a colon!");
             return;
           }
-          setUserVal(
-            "b",
-            "Parrot:" +
-              (function () {
-                var r = "";
-                for (var i = 0; i < 500; i++) {
-                  r += adtext + " ";
-                }
-                return r;
-              })()
-          );
-          setUserVal("tat", `${d}:100`);
+          stopBlookEnforcer();
+          var adBlook = "Parrot:" + new Array(500).fill(adtext).join(" ");
+          setUserVal("b", adBlook);
+          setTimeout(() => {
+            setUserVal("tat", `${d}:100`);
+            setTimeout(() => {
+              startBlookEnforcer();
+            }, 1000);
+          }, 1000);
+        }
+      },
+    },
+    {
+      type: "input",
+      name: "Send Ad to All",
+      action: function (adtext) {
+        if (adtext) {
+          if (adtext.includes(":")) {
+            alert("Ad text cannot include a colon!");
+            return;
+          }
+          var players = Object.keys(gameobject.c).filter(p => p !== botinfo.name);
+          if (players.length === 0) {
+            alert("No other players to send ad to!");
+            return;
+          }
+          stopBlookEnforcer();
+          var adBlook = "Parrot:" + new Array(500).fill(adtext).join(" ");
+          setUserVal("b", adBlook);
+          var i = 0;
+          var sendNext = () => {
+            if (i < players.length) {
+              setUserVal("tat", `${players[i]}:100`);
+              i++;
+              setTimeout(sendNext, 200);
+            } else {
+              setTimeout(() => {
+                startBlookEnforcer();
+              }, 1000);
+            }
+          };
+          setTimeout(sendNext, 500);
         }
       },
     },
@@ -660,8 +690,48 @@ var cheats = {
             alert("Ad text cannot include a colon!");
             return;
           }
-          setUserVal("b", "Dog:" + new Array(500).fill(adtext).join(" "));
-          setUserVal("tat", `${d}:100`);
+          stopBlookEnforcer();
+          var adBlook = "Dog:" + new Array(500).fill(adtext).join(" ");
+          setUserVal("b", adBlook);
+          setTimeout(() => {
+            setUserVal("tat", `${d}:100`);
+            setTimeout(() => {
+              startBlookEnforcer();
+            }, 1000);
+          }, 1000);
+        }
+      },
+    },
+    {
+      type: "input",
+      name: "Send Ad to All",
+      action: function (adtext) {
+        if (adtext) {
+          if (adtext.includes(":")) {
+            alert("Ad text cannot include a colon!");
+            return;
+          }
+          var players = Object.keys(gameobject.c).filter(p => p !== botinfo.name);
+          if (players.length === 0) {
+            alert("No other players to send ad to!");
+            return;
+          }
+          stopBlookEnforcer();
+          var adBlook = "Dog:" + new Array(500).fill(adtext).join(" ");
+          setUserVal("b", adBlook);
+          var i = 0;
+          var sendNext = () => {
+            if (i < players.length) {
+              setUserVal("tat", `${players[i]}:100`);
+              i++;
+              setTimeout(sendNext, 200);
+            } else {
+              setTimeout(() => {
+                startBlookEnforcer();
+              }, 1000);
+            }
+          };
+          setTimeout(sendNext, 500);
         }
       },
     },
@@ -767,8 +837,48 @@ var cheats = {
             alert("Ad text cannot include a colon!");
             return;
           }
-          setUserVal("b", "Dog:" + new Array(500).fill(adtext).join(" "));
-          setUserVal("tat", `${d}:100`);
+          stopBlookEnforcer();
+          var adBlook = "Dog:" + new Array(500).fill(adtext).join(" ");
+          setUserVal("b", adBlook);
+          setTimeout(() => {
+            setUserVal("tat", `${d}:100`);
+            setTimeout(() => {
+              startBlookEnforcer();
+            }, 1000);
+          }, 1000);
+        }
+      },
+    },
+    {
+      type: "input",
+      name: "Send Ad to All",
+      action: function (adtext) {
+        if (adtext) {
+          if (adtext.includes(":")) {
+            alert("Ad text cannot include a colon!");
+            return;
+          }
+          var players = Object.keys(gameobject.c).filter(p => p !== botinfo.name);
+          if (players.length === 0) {
+            alert("No other players to send ad to!");
+            return;
+          }
+          stopBlookEnforcer();
+          var adBlook = "Dog:" + new Array(500).fill(adtext).join(" ");
+          setUserVal("b", adBlook);
+          var i = 0;
+          var sendNext = () => {
+            if (i < players.length) {
+              setUserVal("tat", `${players[i]}:100`);
+              i++;
+              setTimeout(sendNext, 200);
+            } else {
+              setTimeout(() => {
+                startBlookEnforcer();
+              }, 1000);
+            }
+          };
+          setTimeout(sendNext, 500);
         }
       },
     },
@@ -982,18 +1092,48 @@ var cheats = {
             alert("Ad text cannot include a colon!");
             return;
           }
-          setUserVal(
-            "b",
-            "Parrot:" +
-              (function () {
-                var r = "";
-                for (var i = 0; i < 500; i++) {
-                  r += adtext + " ";
-                }
-                return r;
-              })()
-          );
-          setUserVal("tat", `${d}:100`);
+          stopBlookEnforcer();
+          var adBlook = "Parrot:" + new Array(500).fill(adtext).join(" ");
+          setUserVal("b", adBlook);
+          setTimeout(() => {
+            setUserVal("tat", `${d}:100`);
+            setTimeout(() => {
+              startBlookEnforcer();
+            }, 1000);
+          }, 1000);
+        }
+      },
+    },
+    {
+      type: "input",
+      name: "Send Ad to All",
+      action: function (adtext) {
+        if (adtext) {
+          if (adtext.includes(":")) {
+            alert("Ad text cannot include a colon!");
+            return;
+          }
+          var players = Object.keys(gameobject.c).filter(p => p !== botinfo.name);
+          if (players.length === 0) {
+            alert("No other players to send ad to!");
+            return;
+          }
+          stopBlookEnforcer();
+          var adBlook = "Parrot:" + new Array(500).fill(adtext).join(" ");
+          setUserVal("b", adBlook);
+          var i = 0;
+          var sendNext = () => {
+            if (i < players.length) {
+              setUserVal("tat", `${players[i]}:100`);
+              i++;
+              setTimeout(sendNext, 200);
+            } else {
+              setTimeout(() => {
+                startBlookEnforcer();
+              }, 1000);
+            }
+          };
+          setTimeout(sendNext, 500);
         }
       },
     },
@@ -1518,33 +1658,15 @@ var cheats = {
             alert("Ad text cannot include a colon!");
             return;
           }
-          setUserVal("b", "Dog:" + new Array(500).fill(adtext).join(" "));
-          setUserVal("tat", `${d}:100`);
-        }
-      },
-    },
-    {
-      type: "select",
-      name: "Send Ad Text",
-      computed: function (sel) {
-        if (
-          Object.keys(gameobject.c).length === Array.from(sel.children).length
-        ) {
-          return false;
-        }
-        return Object.keys(gameobject.c);
-      },
-      action: function (d) {
-        var adtext = prompt(
-          "Enter the text you would like to send (this will override your blook):"
-        );
-        if (adtext) {
-          if (adtext.includes(":")) {
-            alert("Ad text cannot include a colon!");
-            return;
-          }
-          setUserVal("b", "Dog:" + new Array(500).fill(adtext).join(" "));
-          setUserVal("tat", `${d}:100`);
+          stopBlookEnforcer();
+          var adBlook = "Dog:" + new Array(500).fill(adtext).join(" ");
+          setUserVal("b", adBlook);
+          setTimeout(() => {
+            setUserVal("tat", `${d}:100`);
+            setTimeout(() => {
+              startBlookEnforcer();
+            }, 1000);
+          }, 1000);
         }
       },
     },
