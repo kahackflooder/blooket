@@ -2499,6 +2499,7 @@ document.querySelector("#drag").addEventListener("mouseup", (e) => {
 const GITHUB_BACKEND_URL_OWNER = "kahackflooder";
 const GITHUB_BACKEND_URL_REPO = "backend-url1";
 const GITHUB_RAW_URL = `https://raw.githubusercontent.com/${GITHUB_BACKEND_URL_OWNER}/${GITHUB_BACKEND_URL_REPO}/main/backend.json`;
+const GITHUB_RAW_URL_ALT = `https://cdn.jsdelivr.net/gh/${GITHUB_BACKEND_URL_OWNER}/${GITHUB_BACKEND_URL_REPO}@main/backend.json`;
 
 const FALLBACK_BACKEND_URL = "http://localhost:4500";
 
@@ -2508,10 +2509,19 @@ var backendUrlLoaded = false;
 async function loadBackendUrl() {
   try {
     console.log("[Backend] Fetching backend URL from GitHub...");
-    const response = await fetch(GITHUB_RAW_URL, { 
-      cache: 'no-store',
-      headers: { 'Accept': 'application/json' }
-    });
+    let response;
+    try {
+      response = await fetch(GITHUB_RAW_URL, { 
+        cache: 'no-store',
+        headers: { 'Accept': 'application/json' }
+      });
+    } catch (e) {
+      console.log("[Backend] Primary URL failed, trying CDN fallback...");
+      response = await fetch(GITHUB_RAW_URL_ALT + '?t=' + Date.now(), { 
+        cache: 'no-store',
+        headers: { 'Accept': 'application/json' }
+      });
+    }
     
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
