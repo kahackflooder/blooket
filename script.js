@@ -1890,9 +1890,6 @@ function joinGame(code, name, icog) {
   if (document.getElementById("bcf").getAttribute("checked")) {
     name = bypassFilter(name);
   }
-  if (document.getElementById("fpswitch").getAttribute("checked")) {
-    name = String.fromCharCode(32) + String.fromCharCode(32) + name;
-  }
   oname = name;
   connect(code, name, icog);
 
@@ -2055,7 +2052,6 @@ async function joinMultipleBots(code, baseName, count, icog, selectedBlook = "ra
   renderCheats("Unknown");
   
   var bcf = document.getElementById("bcf").getAttribute("checked");
-  var fp = document.getElementById("fpswitch").getAttribute("checked");
   
   var joinPromises = [];
   
@@ -2064,9 +2060,6 @@ async function joinMultipleBots(code, baseName, count, icog, selectedBlook = "ra
     
     if (bcf) {
       name = bypassFilter(name);
-    }
-    if (fp) {
-      name = String.fromCharCode(32) + String.fromCharCode(32) + name;
     }
     
     joinPromises.push(connectBot(code, name, icog, i, selectedBlook));
