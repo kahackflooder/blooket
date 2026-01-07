@@ -357,6 +357,24 @@ var fvals = {
   Factory: "ca",
 };
 
+var gameModeMap = {
+  "Crypto Hack": "Hack",
+  "Gold Quest": "Gold",
+  "Candy Quest": "Candy",
+  "Tower Defense": "Defense",
+  "Tower Defense 2": "Defense2",
+  "Fishing Frenzy": "Fish",
+  "Crazy Kingdom": "Pirate",
+  "Deceptive Dinos": "Dino",
+  "Cafe": "Cafe",
+  "Blook Rush": "Rush",
+  "Battle Royale": "Royale",
+  "Classic": "Classic",
+  "Racing": "Racing",
+  "Monster Brawl": "Brawl",
+  "Factory": "Factory",
+  "Santa's Workshop": "Toy",
+};
 
 var cheats = {
   Hack: [
@@ -2226,15 +2244,17 @@ function createButton(text, clickaction) {
 }
 
 function renderCheats(gm) {
-  botinfo.type = gm;
+  var mappedGm = gameModeMap[gm] || gm;
+  botinfo.type = mappedGm;
   var c = document.getElementById("ctrlpanel");
   var codep = document.getElementById("cc");
+  c.innerHTML = "";
   codep.style.display = "none";
-  c.appendChild(createNormText("Bot Successful! Type: " + gm));
-  if (cheats[gm]) {
+  c.appendChild(createNormText("Bot Successful! Type: " + gm + (mappedGm !== gm ? ` (${mappedGm})` : "")));
+  if (cheats[mappedGm]) {
     c.appendChild(createNormText("Cheats: "));
     var chc = createCheatContainer();
-    cheats[gm].forEach((e) => {
+    cheats[mappedGm].forEach((e) => {
       switch (e.type) {
         case "button":
           chc.appendChild(createButton(e.name, e.action));
