@@ -1887,7 +1887,8 @@ function joinGame(code, name, icog) {
     return;
   }
 
-  if (document.getElementById("bcf").getAttribute("checked")) {
+  var bcfElement = document.getElementById("bcf");
+  if (bcfElement && bcfElement.getAttribute("checked")) {
     name = bypassFilter(name);
   }
   oname = name;
@@ -2051,7 +2052,8 @@ async function joinMultipleBots(code, baseName, count, icog, selectedBlook = "ra
   
   renderCheats("Unknown");
   
-  var bcf = document.getElementById("bcf").getAttribute("checked");
+  var bcfElement = document.getElementById("bcf");
+  var bcf = bcfElement ? bcfElement.getAttribute("checked") : false;
   
   var joinPromises = [];
   
