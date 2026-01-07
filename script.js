@@ -351,10 +351,18 @@ var fvals = {
   Gold: "g",
   Candy: "g",
   Defense2: "d",
+  Defense: "d",
   Pirate: "d",
   Fish: "w",
   Brawl: "xp",
   Factory: "ca",
+  Dino: "f",
+  Cafe: "ca",
+  Rush: "d",
+  Royale: "d",
+  Classic: "d",
+  Racing: "d",
+  Toy: "t",
 };
 
 var gameModeMap = {
@@ -380,7 +388,7 @@ var cheats = {
   Hack: [
     {
       type: "button",
-      name: "Crash host(crypto)",
+      name: "Crash Host",
       action: function (a) {
         setUserVal("cr/t", "t");
         a.innerText = "Crashing";
@@ -522,7 +530,7 @@ var cheats = {
     },
     {
       type: "input",
-      name: "Advertise Text",
+      name: "Cover Host's Screen",
       action: function (adtext) {
         setUserVal(
           "cr",
@@ -543,7 +551,7 @@ var cheats = {
     },
     {
       type: "select",
-      name: "Send Ad Text",
+      name: "Cover Player's Screen",
       computed: function (sel) {
         if (
           Object.keys(gameobject.c).length === Array.from(sel.children).length
@@ -554,11 +562,11 @@ var cheats = {
       },
       action: function (d) {
         var adtext = prompt(
-          "Enter the text you would like to send (this will override your blook):"
+          "Enter the text to cover their screen with:"
         );
         if (adtext) {
           if (adtext.includes(":")) {
-            alert("Ad text cannot include a colon!");
+            alert("Text cannot include a colon!");
             return;
           }
           stopBlookEnforcer();
@@ -575,16 +583,16 @@ var cheats = {
     },
     {
       type: "input",
-      name: "Send Ad to All",
+      name: "Cover All Screens",
       action: function (adtext) {
         if (adtext) {
           if (adtext.includes(":")) {
-            alert("Ad text cannot include a colon!");
+            alert("Text cannot include a colon!");
             return;
           }
           var players = Object.keys(gameobject.c).filter(p => p !== botinfo.name);
           if (players.length === 0) {
-            alert("No other players to send ad to!");
+            alert("No other players to cover!");
             return;
           }
           stopBlookEnforcer();
@@ -622,7 +630,7 @@ var cheats = {
   Gold: [
     {
       type: "button",
-      name: "Crash host(gold)",
+      name: "Crash Host",
       action: function (a) {
         setUserVal("g/t", "t");
         a.innerText = "Crashing";
@@ -690,7 +698,7 @@ var cheats = {
     },
     {
       type: "select",
-      name: "Send Ad Text",
+      name: "Cover Player's Screen",
       computed: function (sel) {
         if (
           Object.keys(gameobject.c).length === Array.from(sel.children).length
@@ -701,11 +709,11 @@ var cheats = {
       },
       action: function (d) {
         var adtext = prompt(
-          "Enter the text you would like to send (this will override your blook):"
+          "Enter the text to cover their screen with:"
         );
         if (adtext) {
           if (adtext.includes(":")) {
-            alert("Ad text cannot include a colon!");
+            alert("Text cannot include a colon!");
             return;
           }
           stopBlookEnforcer();
@@ -722,16 +730,16 @@ var cheats = {
     },
     {
       type: "input",
-      name: "Send Ad to All",
+      name: "Cover All Screens",
       action: function (adtext) {
         if (adtext) {
           if (adtext.includes(":")) {
-            alert("Ad text cannot include a colon!");
+            alert("Text cannot include a colon!");
             return;
           }
           var players = Object.keys(gameobject.c).filter(p => p !== botinfo.name);
           if (players.length === 0) {
-            alert("No other players to send ad to!");
+            alert("No other players to cover!");
             return;
           }
           stopBlookEnforcer();
@@ -769,7 +777,7 @@ var cheats = {
   Candy: [
     {
       type: "button",
-      name: "Crash host(candy)",
+      name: "Crash Host",
       action: function (a) {
         setUserVal("g/t", "t");
         a.innerText = "Crashing";
@@ -837,7 +845,7 @@ var cheats = {
     },
     {
       type: "select",
-      name: "Send Ad Text",
+      name: "Cover Player's Screen",
       computed: function (sel) {
         if (
           Object.keys(gameobject.c).length === Array.from(sel.children).length
@@ -848,11 +856,11 @@ var cheats = {
       },
       action: function (d) {
         var adtext = prompt(
-          "Enter the text you would like to send (this will override your blook):"
+          "Enter the text to cover their screen with:"
         );
         if (adtext) {
           if (adtext.includes(":")) {
-            alert("Ad text cannot include a colon!");
+            alert("Text cannot include a colon!");
             return;
           }
           stopBlookEnforcer();
@@ -869,16 +877,16 @@ var cheats = {
     },
     {
       type: "input",
-      name: "Send Ad to All",
+      name: "Cover All Screens",
       action: function (adtext) {
         if (adtext) {
           if (adtext.includes(":")) {
-            alert("Ad text cannot include a colon!");
+            alert("Text cannot include a colon!");
             return;
           }
           var players = Object.keys(gameobject.c).filter(p => p !== botinfo.name);
           if (players.length === 0) {
-            alert("No other players to send ad to!");
+            alert("No other players to cover!");
             return;
           }
           stopBlookEnforcer();
@@ -916,7 +924,7 @@ var cheats = {
   Defense2: [
     {
       type: "button",
-      name: "Crash host(defense2)",
+      name: "Crash Host",
       action: function (a) {
         setUserVal("d/t", "t");
         a.innerText = "Crashing";
@@ -1042,7 +1050,7 @@ var cheats = {
   Pirate: [
     {
       type: "button",
-      name: "Crash host(pirate)",
+      name: "Crash Host",
       action: function (a) {
         setUserVal("d/t", "t");
         a.innerText = "Crashing";
@@ -1092,7 +1100,7 @@ var cheats = {
     },
     {
       type: "select",
-      name: "Send Ad Text",
+      name: "Cover Player's Screen",
       computed: function (sel) {
         if (
           Object.keys(gameobject.c).length === Array.from(sel.children).length
@@ -1103,11 +1111,11 @@ var cheats = {
       },
       action: function (d) {
         var adtext = prompt(
-          "Enter the text you would like to send (this will override your blook):"
+          "Enter the text to cover their screen with:"
         );
         if (adtext) {
           if (adtext.includes(":")) {
-            alert("Ad text cannot include a colon!");
+            alert("Text cannot include a colon!");
             return;
           }
           stopBlookEnforcer();
@@ -1124,16 +1132,16 @@ var cheats = {
     },
     {
       type: "input",
-      name: "Send Ad to All",
+      name: "Cover All Screens",
       action: function (adtext) {
         if (adtext) {
           if (adtext.includes(":")) {
-            alert("Ad text cannot include a colon!");
+            alert("Text cannot include a colon!");
             return;
           }
           var players = Object.keys(gameobject.c).filter(p => p !== botinfo.name);
           if (players.length === 0) {
-            alert("No other players to send ad to!");
+            alert("No other players to cover!");
             return;
           }
           stopBlookEnforcer();
@@ -1171,7 +1179,7 @@ var cheats = {
   Dino: [
     {
       type: "button",
-      name: "Crash host(dino)",
+      name: "Crash Host",
       action: function (a) {
         setUserVal("f/t", "t");
         a.innerText = "Crashing";
@@ -1286,15 +1294,13 @@ var cheats = {
         }
         return Object.keys(gameobject.c);
       },
-      action: function (d) {
- var spamTimes = prompt("how many times to spam");
-    var attToSpam = prompt("What attack do you want(inspect, pay, etc)?")
-  for (let i = 0; i < spamTimes; i++) {setUserVal(
-          "tat",
-          `${d}:${attToSpam}`
-          
-        )
-                                       sleep(4000);}
+      action: async function (d) {
+        var spamTimes = parseInt(prompt("How many times to spam?")) || 1;
+        var attToSpam = prompt("What attack do you want (inspect, pay, etc)?");
+        for (let i = 0; i < spamTimes; i++) {
+          setUserVal("tat", `${d}:${attToSpam}`);
+          await new Promise(r => setTimeout(r, 500));
+        }
       }
     },
     {
@@ -1311,7 +1317,7 @@ var cheats = {
   Brawl: [
     {
       type: "button",
-      name: "Crash host(brawl)",
+      name: "Crash Host",
       action: function (a) {
         setUserVal("xp/t", "t");
         a.innerText = "Crashing";
@@ -1400,11 +1406,11 @@ var cheats = {
       action: function (d) {
         setUserVal(
           "tat",
-          `${d}:${prompt("Which attack do you want to perform(rocket,etc)?")}`
+          `${d}:${prompt("Which attack do you want to perform (rocket, etc)?")}`
         );
-      sleep(4000);},
+      },
     },
-        {
+    {
       type: "select",
       name: "Spam Attack player",
       computed: function (sel) {
@@ -1415,14 +1421,13 @@ var cheats = {
         }
         return Object.keys(gameobject.c);
       },
-      action: function (d) {
-  var spamTimes = prompt("how many times to spam");
-  var attToSpam = prompt("Which attack do you want to perform(rocket,etc)?")
-  for (let i = 0; i < spamTimes; i++) {
-  setUserVal(
-          "tat",
-          `${d}:${attToSpam}`
-        );}
+      action: async function (d) {
+        var spamTimes = parseInt(prompt("How many times to spam?")) || 1;
+        var attToSpam = prompt("Which attack do you want to perform (rocket, etc)?");
+        for (let i = 0; i < spamTimes; i++) {
+          setUserVal("tat", `${d}:${attToSpam}`);
+          await new Promise(r => setTimeout(r, 500));
+        }
       },
     },
   ],
@@ -1506,7 +1511,7 @@ var cheats = {
     },
     {
       type: "input",
-      name: "Advertise Text",
+      name: "Cover Host's Screen",
       action: function (adtext) {
         setUserVal(
           "d",
@@ -1590,7 +1595,7 @@ var cheats = {
   Toy: [
     {
       type: "button",
-      name: "Crash host(toy)",
+      name: "Crash Host",
       action: function (a) {
         setUserVal("t/t", "t");
         a.innerText = "Crashing";
@@ -1658,7 +1663,7 @@ var cheats = {
     },
     {
       type: "select",
-      name: "Send Ad Text",
+      name: "Cover Player's Screen",
       computed: function (sel) {
         if (
           Object.keys(gameobject.c).length === Array.from(sel.children).length
@@ -1669,11 +1674,11 @@ var cheats = {
       },
       action: function (d) {
         var adtext = prompt(
-          "Enter the text you would like to send (this will override your blook):"
+          "Enter the text to cover their screen with:"
         );
         if (adtext) {
           if (adtext.includes(":")) {
-            alert("Ad text cannot include a colon!");
+            alert("Text cannot include a colon!");
             return;
           }
           stopBlookEnforcer();
@@ -1685,6 +1690,39 @@ var cheats = {
               startBlookEnforcer();
             }, 1000);
           }, 1000);
+        }
+      },
+    },
+    {
+      type: "input",
+      name: "Cover All Screens",
+      action: function (adtext) {
+        if (adtext) {
+          if (adtext.includes(":")) {
+            alert("Text cannot include a colon!");
+            return;
+          }
+          var players = Object.keys(gameobject.c).filter(p => p !== botinfo.name);
+          if (players.length === 0) {
+            alert("No other players to cover!");
+            return;
+          }
+          stopBlookEnforcer();
+          var adBlook = "Dog:" + new Array(500).fill(adtext).join(" ");
+          setUserVal("b", adBlook);
+          var i = 0;
+          var sendNext = () => {
+            if (i < players.length) {
+              setUserVal("tat", `${players[i]}:100`);
+              i++;
+              setTimeout(sendNext, 200);
+            } else {
+              setTimeout(() => {
+                startBlookEnforcer();
+              }, 1000);
+            }
+          };
+          setTimeout(sendNext, 500);
         }
       },
     },
@@ -1894,7 +1932,7 @@ function joinGame(code, name, icog) {
   oname = name;
   connect(code, name, icog);
 
-  setTimeout(() => { canJoin = true; }, 3000);
+  setTimeout(() => { canJoin = true; }, 2000);
 }
 
 function onFirstData(d) {
@@ -1977,7 +2015,7 @@ function updateBotCounter() {
   }
 }
 
-async function connectBot(gid, name, icog, botIndex, selectedBlook = "random") {
+async function connectBot(gid, name, icog, botIndex, selectedBlook = "random", retries = 2) {
   var bot = {
     connected: false,
     connecting: true,
@@ -1986,53 +2024,71 @@ async function connectBot(gid, name, icog, botIndex, selectedBlook = "random") {
     index: botIndex
   };
   
-  const body = await fetch(OUR_BACKEND_URL + "/join", {
-    body: JSON.stringify({ id: gid, name: name }),
-    headers: { "Content-Type": "application/json" },
-    method: "POST",
-  }).then((e) => e.json());
-  
-  if (body.success) {
-    const liveApp = initializeApp(
-      {
-        apiKey: "AIzaSyCA-cTOnX19f6LFnDVVsHXya3k6ByP_MnU",
-        authDomain: "blooket-2020.firebaseapp.com",
-        projectId: "blooket-2020",
-        storageBucket: "blooket-2020.appspot.com",
-        messagingSenderId: "741533559105",
-        appId: "1:741533559105:web:b8cbb10e6123f2913519c0",
-        measurementId: "G-S3H5NGN10Z",
-        databaseURL: body.fbShardURL,
-      },
-      Date.now().toString() + "_" + botIndex
-    );
-    const auth = getAuth(liveApp);
-    await signInWithCustomToken(auth, body.fbToken);
-    const db = getDatabase(liveApp);
-    
-    var blookToUse;
-    if (selectedBlook === "random") {
-      blookToUse = fblooks[Math.floor(Math.random() * fblooks.length)];
-    } else if (selectedBlook === "hitler") {
-      blookToUse = hitler;
-    } else {
-      blookToUse = selectedBlook;
+  for (var attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const body = await fetch(OUR_BACKEND_URL + "/join", {
+        body: JSON.stringify({ id: gid, name: name }),
+        headers: { "Content-Type": "application/json" },
+        method: "POST",
+      }).then((e) => e.json());
+      
+      if (body.success) {
+        const liveApp = initializeApp(
+          {
+            apiKey: "AIzaSyCA-cTOnX19f6LFnDVVsHXya3k6ByP_MnU",
+            authDomain: "blooket-2020.firebaseapp.com",
+            projectId: "blooket-2020",
+            storageBucket: "blooket-2020.appspot.com",
+            messagingSenderId: "741533559105",
+            appId: "1:741533559105:web:b8cbb10e6123f2913519c0",
+            measurementId: "G-S3H5NGN10Z",
+            databaseURL: body.fbShardURL,
+          },
+          Date.now().toString() + "_" + botIndex + "_" + attempt
+        );
+        const auth = getAuth(liveApp);
+        await signInWithCustomToken(auth, body.fbToken);
+        const db = getDatabase(liveApp);
+        
+        var blookToUse;
+        if (selectedBlook === "random") {
+          blookToUse = fblooks[Math.floor(Math.random() * fblooks.length)];
+        } else if (selectedBlook === "hitler") {
+          blookToUse = hitler;
+        } else {
+          blookToUse = selectedBlook;
+        }
+        
+        await set(ref(db, `${gid}/c/${name}`), {
+          b: blookToUse,
+          rt: !0
+        });
+        bot.fbdb = db;
+        bot.liveApp = liveApp;
+        bot.connecting = false;
+        bot.connected = true;
+        return bot;
+      } else {
+        if (attempt < retries) {
+          await new Promise(r => setTimeout(r, 100 * (attempt + 1)));
+          continue;
+        }
+        bot.connecting = false;
+        bot.error = body.msg;
+        return null;
+      }
+    } catch (e) {
+      if (attempt < retries) {
+        await new Promise(r => setTimeout(r, 100 * (attempt + 1)));
+        continue;
+      }
+      console.log("[JOIN] Error for bot " + botIndex, e);
+      bot.connecting = false;
+      bot.error = e.message;
+      return null;
     }
-    
-    await set(ref(db, `${gid}/c/${name}`), {
-      b: blookToUse,
-      rt: !0
-    });
-    bot.fbdb = db;
-    bot.liveApp = liveApp;
-    bot.connecting = false;
-    bot.connected = true;
-    return bot;
-  } else {
-    bot.connecting = false;
-    bot.error = body.msg;
-    return null;
   }
+  return null;
 }
 
 async function joinMultipleBots(code, baseName, count, icog, selectedBlook = "random") {
@@ -2055,21 +2111,40 @@ async function joinMultipleBots(code, baseName, count, icog, selectedBlook = "ra
   var bcfElement = document.getElementById("bcf");
   var bcf = bcfElement ? bcfElement.getAttribute("checked") : false;
   
-  var joinPromises = [];
+  var batchSize = 10;
+  var delayBetweenBatches = 100;
+  
+  var allResults = [];
+  var botNames = [];
   
   for (var i = 0; i < count; i++) {
     var name = count > 1 ? baseName + (i + 1) : baseName;
-    
     if (bcf) {
       name = bypassFilter(name);
     }
-    
-    joinPromises.push(connectBot(code, name, icog, i, selectedBlook));
+    botNames.push({ name: name, index: i });
   }
   
-  var results = await Promise.all(joinPromises);
+  for (var batch = 0; batch < botNames.length; batch += batchSize) {
+    var batchBots = botNames.slice(batch, batch + batchSize);
+    var batchNum = Math.floor(batch / batchSize) + 1;
+    var totalBatches = Math.ceil(botNames.length / batchSize);
+    
+    updateStatus(`Joining batch ${batchNum}/${totalBatches} (${allResults.filter(b => b && b.connected).length} connected)...`);
+    
+    var batchPromises = batchBots.map(b => {
+      return connectBot(code, b.name, icog, b.index, selectedBlook);
+    });
+    
+    var batchResults = await Promise.all(batchPromises);
+    allResults = allResults.concat(batchResults);
+    
+    if (batch + batchSize < botNames.length) {
+      await new Promise(r => setTimeout(r, delayBetweenBatches));
+    }
+  }
   
-  allBots = results.filter(bot => bot !== null && bot.connected);
+  allBots = allResults.filter(bot => bot !== null && bot.connected);
   
   if (allBots.length > 0) {
     botinfo = allBots[0];
@@ -2099,7 +2174,7 @@ async function joinMultipleBots(code, baseName, count, icog, selectedBlook = "ra
     errorBar(`Only ${allBots.length}/${count} connected - try different names`);
   }
   
-  setTimeout(() => { canJoin = true; }, 2000);
+  setTimeout(() => { canJoin = true; }, 1000);
 }
 
 function leaveAllBots() {
@@ -2412,14 +2487,13 @@ function createCsSel(text, vals, action) {
     var opt = document.createElement("option");
     opt.innerText = e?.name;
     opt.value = e?.value;
-    iv.appendChild(opt);
+    dl.appendChild(opt);
   });
-  inp.appendChild(iv);
-  inp.addEventListener("click", function (e) {
+  inp.appendChild(dl);
+  inp.addEventListener("change", function (e) {
     if (e.target === iv) {
-      return;
+      action(iv.value);
     }
-    action(iv.value);
   });
   return inp;
 }
@@ -2589,7 +2663,7 @@ async function useToken(token) {
 }
 
 function recoverInfoFromFbToken(fbToken) {
-  return JSON.parse(atob(token.split(".")[1]));
+  return JSON.parse(atob(fbToken.split(".")[1]));
 }
 
 function addChatMessage(a) {
