@@ -322,7 +322,10 @@ var oname;
 var unreads = 0;
 var chosenBlook = "random"; 
 var lastGameStage = null; 
-var blookEnforcerInterval = null; 
+var blookEnforcerInterval = null;
+var playerSelectElements = [];
+var playerListUpdateInterval = null;
+var lastPlayerListHash = ""; 
 
 
 function startBlookEnforcer() {
@@ -344,6 +347,48 @@ function stopBlookEnforcer() {
     blookEnforcerInterval = null;
     console.log("[BLOOK ENFORCER] Stopped");
   }
+}
+
+function startPlayerListUpdater() {
+  stopPlayerListUpdater();
+  playerListUpdateInterval = setInterval(() => {
+    updateAllPlayerSelects();
+  }, 1000);
+  console.log("[PLAYER LIST] Auto-updater started");
+}
+
+function stopPlayerListUpdater() {
+  if (playerListUpdateInterval) {
+    clearInterval(playerListUpdateInterval);
+    playerListUpdateInterval = null;
+    console.log("[PLAYER LIST] Auto-updater stopped");
+  }
+}
+
+function updateAllPlayerSelects() {
+  if (!gameobject || !gameobject.c) return;
+  
+  var players = Object.keys(gameobject.c).sort();
+  var currentHash = players.join(",");
+  
+  if (currentHash === lastPlayerListHash) return;
+  lastPlayerListHash = currentHash;
+  
+  playerSelectElements = playerSelectElements.filter(el => document.body.contains(el));
+  
+  playerSelectElements.forEach(selectEl => {
+    var currentValue = selectEl.value;
+    selectEl.innerHTML = "";
+    players.forEach(playerName => {
+      var opt = document.createElement("option");
+      opt.innerText = playerName;
+      opt.value = playerName;
+      selectEl.appendChild(opt);
+    });
+    if (players.includes(currentValue)) {
+      selectEl.value = currentValue;
+    }
+  });
 }
 
 var fvals = {
@@ -1981,6 +2026,9 @@ function leaveGame() {
     botinfo.liveApp = false;
     gameobject = {};
     lastGameStage = null;
+    stopPlayerListUpdater();
+    playerSelectElements = [];
+    lastPlayerListHash = "";
     updateStatus("Ready");
   }
 }
@@ -2179,6 +2227,9 @@ async function joinMultipleBots(code, baseName, count, icog, selectedBlook = "ra
 
 function leaveAllBots() {
   stopBlookEnforcer();
+  stopPlayerListUpdater();
+  playerSelectElements = [];
+  lastPlayerListHash = "";
   for (var i = 0; i < allBots.length; i++) {
     var bot = allBots[i];
     if (bot && bot.connected) {
@@ -2320,6 +2371,11 @@ function renderCheats(gm) {
   var codep = document.getElementById("cc");
   c.innerHTML = "";
   codep.style.display = "none";
+  
+  playerSelectElements = [];
+  lastPlayerListHash = "";
+  startPlayerListUpdater();
+  
   c.appendChild(createNormText("Bot Successful! Type: " + gm + (mappedGm !== gm ? ` (${mappedGm})` : "")));
   if (cheats[mappedGm]) {
     c.appendChild(createNormText("Cheats: "));
@@ -2361,6 +2417,9 @@ function finishG() {
   document.querySelector(".chat").style.display = "none";
   cp.innerHTML = "";
   cc.style.display = "block";
+  stopPlayerListUpdater();
+  playerSelectElements = [];
+  lastPlayerListHash = "";
   errorBar("Game Ended!");
 }
 
@@ -2393,18 +2452,25 @@ function createSel(text, cpval, action) {
   ti.innerText = text + ":";
   inp.appendChild(ti);
   var iv = document.createElement("select");
-  iv.innerHTML = "<option>Click to update</option>";
-  iv.addEventListener("click", function (e) {
-    var rvals = cpval(iv);
-    if (rvals) {
-      iv.innerHTML = "";
-      rvals.sort().forEach((e) => {
-        var opt = document.createElement("option");
-        opt.innerText = e;
-        iv.appendChild(opt);
-      });
+  iv.innerHTML = "<option>Loading players...</option>";
+  
+  playerSelectElements.push(iv);
+  
+  setTimeout(() => {
+    if (gameobject && gameobject.c) {
+      var players = Object.keys(gameobject.c).sort();
+      if (players.length > 0) {
+        iv.innerHTML = "";
+        players.forEach(playerName => {
+          var opt = document.createElement("option");
+          opt.innerText = playerName;
+          opt.value = playerName;
+          iv.appendChild(opt);
+        });
+      }
     }
-  });
+  }, 100);
+  
   inp.appendChild(iv);
   inp.addEventListener("click", function (e) {
     if (e.target === iv) {
