@@ -2631,7 +2631,7 @@ document.querySelector("#drag").addEventListener("mouseup", (e) => {
   dragging = false;
 });
 
-const GITHUB_BACKEND_URL_OWNER = "kahackflooder";
+const GITHUB_BACKEND_URL_OWNER = "gameflooder";
 const GITHUB_BACKEND_URL_REPO = "backend-url1";
 const GITHUB_RAW_URL = `https://raw.githubusercontent.com/${GITHUB_BACKEND_URL_OWNER}/${GITHUB_BACKEND_URL_REPO}/main/backend.json`;
 const GITHUB_RAW_URL_ALT = `https://cdn.jsdelivr.net/gh/${GITHUB_BACKEND_URL_OWNER}/${GITHUB_BACKEND_URL_REPO}@main/backend.json`;
