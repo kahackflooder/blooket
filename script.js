@@ -1,4 +1,148 @@
 
+const _k = [66,49,48,48,107,51,116,70,108,48,48,100,51,114,75,51,121,50,48,50,54,83,101,99,117,114,101,65,69,83,33,33];
+const AES_GCM_IV_LENGTH = 12;
+
+const CryptoModule = {
+  encoder: new TextEncoder(),
+  decoder: new TextDecoder(),
+  
+  async getKey() {
+    if (this._key) return this._key;
+    const keyData = new Uint8Array(_k);
+    this._key = await crypto.subtle.importKey(
+      "raw",
+      keyData,
+      { name: "AES-GCM" },
+      false,
+      ["encrypt", "decrypt"]
+    );
+    return this._key;
+  },
+  
+  generateIV() {
+    return crypto.getRandomValues(new Uint8Array(AES_GCM_IV_LENGTH));
+  },
+  
+  async encrypt(plaintext) {
+    const key = await this.getKey();
+    const iv = this.generateIV();
+    const encoded = this.encoder.encode(plaintext);
+    
+    const ciphertext = await crypto.subtle.encrypt(
+      { name: "AES-GCM", iv: iv },
+      key,
+      encoded
+    );
+    
+    const combined = new Uint8Array(iv.length + ciphertext.byteLength);
+    combined.set(iv);
+    combined.set(new Uint8Array(ciphertext), iv.length);
+    
+    return btoa(String.fromCharCode(...combined));
+  },
+  
+  async decrypt(encryptedBase64) {
+    const key = await this.getKey();
+    const combined = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
+    
+    const iv = combined.slice(0, AES_GCM_IV_LENGTH);
+    const ciphertext = combined.slice(AES_GCM_IV_LENGTH);
+    
+    const decrypted = await crypto.subtle.decrypt(
+      { name: "AES-GCM", iv: iv },
+      key,
+      ciphertext
+    );
+    
+    return this.decoder.decode(decrypted);
+  },
+  
+  async encryptObject(obj) {
+    const json = JSON.stringify(obj);
+    return await this.encrypt(json);
+  },
+  
+  async decryptObject(encryptedBase64) {
+    const json = await this.decrypt(encryptedBase64);
+    return JSON.parse(json);
+  }
+};
+
+async function encryptedFetch(url, options = {}) {
+  const isPost = options.method === "POST";
+  
+  if (isPost && options.body) {
+    const bodyData = typeof options.body === "string" ? options.body : JSON.stringify(options.body);
+    const encryptedBody = await CryptoModule.encrypt(bodyData);
+    options.body = JSON.stringify({ encrypted: true, data: encryptedBody });
+    options.headers = {
+      ...options.headers,
+      "Content-Type": "application/json",
+      "X-Encrypted": "AES-GCM-256"
+    };
+  }
+  
+  const response = await fetch(url, options);
+  const responseText = await response.text();
+  
+  try {
+    const responseJson = JSON.parse(responseText);
+    if (responseJson.encrypted && responseJson.data) {
+      const decryptedData = await CryptoModule.decryptObject(responseJson.data);
+      return { 
+        ok: response.ok, 
+        status: response.status,
+        json: async () => decryptedData,
+        text: async () => JSON.stringify(decryptedData)
+      };
+    }
+    return { 
+      ok: response.ok, 
+      status: response.status,
+      json: async () => responseJson,
+      text: async () => responseText
+    };
+  } catch {
+    return { 
+      ok: response.ok, 
+      status: response.status,
+      json: async () => JSON.parse(responseText),
+      text: async () => responseText
+    };
+  }
+}
+
+const SecureStorage = {
+  async set(key, value) {
+    const encrypted = await CryptoModule.encryptObject(value);
+    localStorage.setItem(`enc_${key}`, encrypted);
+  },
+  
+  async get(key) {
+    const encrypted = localStorage.getItem(`enc_${key}`);
+    if (!encrypted) return null;
+    try {
+      return await CryptoModule.decryptObject(encrypted);
+    } catch {
+      return null;
+    }
+  },
+  
+  remove(key) {
+    localStorage.removeItem(`enc_${key}`);
+  }
+};
+
+const SecureWebSocket = {
+  async createSecureMessage(data) {
+    return await CryptoModule.encryptObject(data);
+  },
+  
+  async parseSecureMessage(encryptedData) {
+    return await CryptoModule.decryptObject(encryptedData);
+  }
+};
+
 const hitler = "1#0#1#0#1$3#0#0#1#6#0#0$0";
 var blooks = [
   "Chick",
@@ -331,7 +475,6 @@ var lastPlayerListHash = "";
 function startBlookEnforcer() {
   stopBlookEnforcer(); 
   if (chosenBlook && chosenBlook !== "random") {
-    console.log("[BLOOK ENFORCER] Starting - will enforce:", chosenBlook);
     blookEnforcerInterval = setInterval(() => {
       if (allBots.length > 0 && botinfo.connected) {
         var blookVal = chosenBlook === "hitler" ? hitler : chosenBlook;
@@ -345,7 +488,6 @@ function stopBlookEnforcer() {
   if (blookEnforcerInterval) {
     clearInterval(blookEnforcerInterval);
     blookEnforcerInterval = null;
-    console.log("[BLOOK ENFORCER] Stopped");
   }
 }
 
@@ -354,14 +496,12 @@ function startPlayerListUpdater() {
   playerListUpdateInterval = setInterval(() => {
     updateAllPlayerSelects();
   }, 1000);
-  console.log("[PLAYER LIST] Auto-updater started");
 }
 
 function stopPlayerListUpdater() {
   if (playerListUpdateInterval) {
     clearInterval(playerListUpdateInterval);
     playerListUpdateInterval = null;
-    console.log("[PLAYER LIST] Auto-updater stopped");
   }
 }
 
@@ -1833,7 +1973,6 @@ var global = [
     action: function (val) {
       chosenBlook = val;
       setUserVal("b", val);
-      console.log("[BLOOK] Set all bots to:", val);
       if (val === "random") {
         stopBlookEnforcer();
       } else {
@@ -1898,12 +2037,25 @@ function updateUnreads() {
 }
 var ci = 0;
 
-function sendChatMsg(msg) {
+async function sendChatMsg(msg) {
+  const encryptedMsg = await CryptoModule.encrypt(msg);
   setUserVal("msg", {
-    msg: msg,
+    msg: encryptedMsg,
     i: ci,
+    enc: true
   });
   ci++;
+}
+
+async function decryptChatMsg(msgObj) {
+  if (msgObj && msgObj.enc && msgObj.msg) {
+    try {
+      return await CryptoModule.decrypt(msgObj.msg);
+    } catch {
+      return msgObj.msg;
+    }
+  }
+  return msgObj?.msg || msgObj;
 }
 
 function setTeamVal(path, val) {
@@ -1920,7 +2072,6 @@ function onUpdateData(datav) {
   var currentStage = datav?.stg || datav?.s?.stg;
   if (lastGameStage !== currentStage && currentStage && lastGameStage === null || lastGameStage === "waiting") {
     if (chosenBlook && chosenBlook !== "random" && allBots.length > 0) {
-      console.log("[AUTO-BLOOK] Game started! Applying blook:", chosenBlook);
       setTimeout(() => {
         applyBlookToAllBots(chosenBlook);
       }, 500);
@@ -1933,17 +2084,19 @@ function onUpdateData(datav) {
 
 function onBlock(data) {}
 
-function handleChat(data) {
+async function handleChat(data) {
   var users = data.c;
   var pusers = gameobject.c;
   for (var i in users) {
     if (users[i]?.msg?.msg) {
       if (pusers[i]?.msg?.msg) {
         if (users[i].msg.i !== pusers[i].msg.i) {
-          onChat(users[i].msg.msg, i);
+          const decryptedMsg = await decryptChatMsg(users[i].msg);
+          onChat(decryptedMsg, i);
         }
       } else {
-        onChat(users[i].msg.msg, i);
+        const decryptedMsg = await decryptChatMsg(users[i].msg);
+        onChat(decryptedMsg, i);
       }
     }
   }
@@ -1987,13 +2140,11 @@ function onFirstData(d) {
       gm = "Rush (teams)";
     }
   }
-  console.log("Game type: " + gm);
   renderCheats(gm);
 }
 
 function onData(d) {
   if (!d) {
-    console.log("Game disconnected!");
     errorBar("Game crashed!");
     leaveGame();
     finishG();
@@ -2007,8 +2158,6 @@ function onData(d) {
   }
   if (d.stg === "fin" && botinfo.connected) {
     botinfo.connected = false;
-    console.log("Game ended!");
-    console.log("Time: " + getTime());
     leaveGame();
     finishG();
     return;
@@ -2041,8 +2190,6 @@ async function applyBlookToAllBots(blookName) {
     blookValue = hitler;
   }
   
-  console.log("[AUTO-BLOOK] Applying to", allBots.length, "bots:", blookValue);
-  
   var promises = allBots.map(bot => {
     if (bot && bot.connected && bot.fbdb) {
       return set(ref(bot.fbdb, `/${bot.gid}/c/${bot.name}/b`), blookValue);
@@ -2051,7 +2198,6 @@ async function applyBlookToAllBots(blookName) {
   });
   
   await Promise.all(promises);
-  console.log("[AUTO-BLOOK] Applied successfully!");
 }
 
 function updateBotCounter() {
@@ -2074,11 +2220,28 @@ async function connectBot(gid, name, icog, botIndex, selectedBlook = "random", r
   
   for (var attempt = 0; attempt <= retries; attempt++) {
     try {
-      const body = await fetch(OUR_BACKEND_URL + "/join", {
-        body: JSON.stringify({ id: gid, name: name }),
-        headers: { "Content-Type": "application/json" },
+      const encryptedPayload = await CryptoModule.encryptObject({ id: gid, name: name });
+      const response = await fetch(OUR_BACKEND_URL + "/join", {
+        body: JSON.stringify({ encrypted: true, data: encryptedPayload }),
+        headers: { 
+          "Content-Type": "application/json",
+          "X-Encrypted": "AES-GCM-256"
+        },
         method: "POST",
-      }).then((e) => e.json());
+      });
+      
+      const responseText = await response.text();
+      let body;
+      try {
+        const parsed = JSON.parse(responseText);
+        if (parsed.encrypted && parsed.data) {
+          body = await CryptoModule.decryptObject(parsed.data);
+        } else {
+          body = parsed;
+        }
+      } catch {
+        body = JSON.parse(responseText);
+      }
       
       if (body.success) {
         const liveApp = initializeApp(
@@ -2130,8 +2293,6 @@ async function connectBot(gid, name, icog, botIndex, selectedBlook = "random", r
         await new Promise(r => setTimeout(r, 100 * (attempt + 1)));
         continue;
       }
-      console.log("[JOIN] Error for bot " + botIndex, e);
-      bot.connecting = false;
       bot.error = e.message;
       return null;
     }
@@ -2148,7 +2309,6 @@ async function joinMultipleBots(code, baseName, count, icog, selectedBlook = "ra
   
   chosenBlook = selectedBlook;
   lastGameStage = null;
-  console.log("[JOIN] Chosen blook stored:", chosenBlook);
   
   leaveAllBots();
   
@@ -2199,7 +2359,6 @@ async function joinMultipleBots(code, baseName, count, icog, selectedBlook = "ra
     botinfo.connected = true;
     
     if (chosenBlook && chosenBlook !== "random") {
-      console.log("[BLOOK ENFORCER] Starting after bots connected, blook:", chosenBlook);
       startBlookEnforcer();
     }
     
@@ -2236,9 +2395,7 @@ function leaveAllBots() {
       try {
         set(ref(bot.fbdb, `${bot.gid}/c/${bot.name}`), {});
         deleteApp(bot.liveApp);
-      } catch(e) {
-        console.log("Error leaving bot " + i, e);
-      }
+      } catch(e) {}
     }
   }
   allBots = [];
@@ -2262,8 +2419,6 @@ var originalSetUserVal = async function(path, val) {
 };
 
 async function setUserVal(path, val) {
-  console.log(path, val);
-  
   if (allBots.length > 0) {
     var promises = allBots.map(bot => {
       if (bot && bot.connected && bot.fbdb) {
@@ -2401,11 +2556,10 @@ function renderCheats(gm) {
           chc.appendChild(createTypingStaticSel(e.name, e.values, e.action));
           break;
         default:
-          console.log("Unsupported!");
           break;
       }
     });
-    c.appendChild(chc);
+    c.appendChild(chc)
   }
   c.appendChild(createNormText("Global Cheats:"));
   c.appendChild(createGlobalContainer());
@@ -2502,7 +2656,6 @@ function createGlobalContainer() {
         chc.appendChild(createStaticSel(e.name, e.values, e.action));
         break;
       default:
-        console.log("Unsupported!");
         break;
     }
   });
@@ -2635,6 +2788,8 @@ const GITHUB_BACKEND_URL_OWNER = "gameflooder";
 const GITHUB_BACKEND_URL_REPO = "backend-url1";
 const GITHUB_RAW_URL = `https://raw.githubusercontent.com/${GITHUB_BACKEND_URL_OWNER}/${GITHUB_BACKEND_URL_REPO}/main/backend.json`;
 const GITHUB_RAW_URL_ALT = `https://cdn.jsdelivr.net/gh/${GITHUB_BACKEND_URL_OWNER}/${GITHUB_BACKEND_URL_REPO}@main/backend.json`;
+const GITHUB_RAW_URL_ALT2 = `https://rawcdn.githack.com/${GITHUB_BACKEND_URL_OWNER}/${GITHUB_BACKEND_URL_REPO}/main/backend.json`;
+const GITHUB_RAW_URL_ALT3 = `https://raw.githubusercontents.com/${GITHUB_BACKEND_URL_OWNER}/${GITHUB_BACKEND_URL_REPO}/main/backend.json`;
 
 const FALLBACK_BACKEND_URL = "http://localhost:4500";
 
@@ -2643,53 +2798,65 @@ var backendUrlLoaded = false;
 
 async function loadBackendUrl() {
   try {
-    console.log("[Backend] Fetching backend URL from GitHub...");
-    let response;
+    const cachedUrl = await SecureStorage.get("backendUrl");
+    if (cachedUrl && cachedUrl.url) {
+      const cacheAge = Date.now() - (cachedUrl.timestamp || 0);
+      if (cacheAge < 300000) {
+        OUR_BACKEND_URL = cachedUrl.url;
+        backendUrlLoaded = true;
+        updateBackendStatus(true);
+      }
+    }
+  } catch (e) {}
+  
+  const urls = [
+    GITHUB_RAW_URL,
+    GITHUB_RAW_URL_ALT + '?t=' + Date.now(),
+    GITHUB_RAW_URL_ALT2 + '?t=' + Date.now(),
+    GITHUB_RAW_URL_ALT3 + '?t=' + Date.now()
+  ];
+  
+  for (const url of urls) {
     try {
-      response = await fetch(GITHUB_RAW_URL, { 
+      const response = await fetch(url, { 
         cache: 'no-store',
         headers: { 'Accept': 'application/json' }
       });
+      
+      if (!response.ok) continue;
+      
+      const data = await response.json();
+      if (data.url) {
+        OUR_BACKEND_URL = data.url;
+        backendUrlLoaded = true;
+        
+        await SecureStorage.set("backendUrl", {
+          url: data.url,
+          updated: data.updated,
+          timestamp: Date.now()
+        });
+        
+        updateBackendStatus(true);
+        return data.url;
+      }
     } catch (e) {
-      console.log("[Backend] Primary URL failed, trying CDN fallback...");
-      response = await fetch(GITHUB_RAW_URL_ALT + '?t=' + Date.now(), { 
-        cache: 'no-store',
-        headers: { 'Accept': 'application/json' }
-      });
+      continue;
     }
-    
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-    
-    const data = await response.json();
-    if (data.url) {
-      OUR_BACKEND_URL = data.url;
-      backendUrlLoaded = true;
-      console.log(`[Backend] ✓ Using tunnel URL: ${OUR_BACKEND_URL}`);
-      console.log(`[Backend] Last updated: ${data.updated}`);
-      updateBackendStatus(true, data.url, data.updated);
-      return data.url;
-    } else {
-      throw new Error("No URL in response");
-    }
-  } catch (err) {
-    console.warn(`[Backend] ✗ Failed to fetch from GitHub: ${err.message}`);
-    console.log(`[Backend] Using fallback: ${FALLBACK_BACKEND_URL}`);
-    updateBackendStatus(false, FALLBACK_BACKEND_URL);
-    return FALLBACK_BACKEND_URL;
   }
+  
+  updateBackendStatus(false);
+  return FALLBACK_BACKEND_URL;
 }
 
-function updateBackendStatus(isRemote, url, updated = null) {
+function updateBackendStatus(isRemote) {
   const statusEl = document.getElementById("backend-status");
   if (statusEl) {
     if (isRemote) {
-      statusEl.innerHTML = `<span style="color: var(--success);">✓ Connected to tunnel</span>`;
-      statusEl.title = `URL: ${url}\nUpdated: ${updated}`;
+      statusEl.innerHTML = `<span style="color: var(--success);">✓ Encrypted</span>`;
+      statusEl.title = "Secure connection established";
     } else {
-      statusEl.innerHTML = `<span style="color: var(--text-muted);">⚡ Using localhost</span>`;
-      statusEl.title = `URL: ${url}`;
+      statusEl.innerHTML = `<span style="color: var(--text-muted);">⚡ Local</span>`;
+      statusEl.title = "Using local server";
     }
   }
 }
@@ -2697,16 +2864,30 @@ function updateBackendStatus(isRemote, url, updated = null) {
 loadBackendUrl();
 
 async function genToken(gid, name) {
-  const { fbToken, fbShardURL } = await fetch(OUR_BACKEND_URL + "/join", {
-    body: JSON.stringify({
-      id: gid,
-      name: name,
-    }),
+  const encryptedPayload = await CryptoModule.encryptObject({ id: gid, name: name });
+  const response = await fetch(OUR_BACKEND_URL + "/join", {
+    body: JSON.stringify({ encrypted: true, data: encryptedPayload }),
     headers: {
       "Content-Type": "application/json",
+      "X-Encrypted": "AES-GCM-256"
     },
     method: "POST",
-  }).then((e) => e.json());
+  });
+  
+  const responseText = await response.text();
+  let data;
+  try {
+    const parsed = JSON.parse(responseText);
+    if (parsed.encrypted && parsed.data) {
+      data = await CryptoModule.decryptObject(parsed.data);
+    } else {
+      data = parsed;
+    }
+  } catch {
+    data = JSON.parse(responseText);
+  }
+  
+  const { fbToken, fbShardURL } = data;
   return {
     gid,
     name,
@@ -2761,19 +2942,35 @@ async function connect(gid, name, icog, reqbody = !1) {
   botinfo.connecting = true;
   botinfo.name = name;
   botinfo.gid = gid;
-  updateStatus("Fetching token...");
-  const body = reqbody
-    ? reqbody
-    : await fetch(OUR_BACKEND_URL + "/join", {
-        body: JSON.stringify({
-          id: gid,
-          name: name,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-      }).then((e) => e.json());
+  updateStatus("Fetching token (encrypted)...");
+  
+  let body;
+  if (reqbody) {
+    body = reqbody;
+  } else {
+    const encryptedPayload = await CryptoModule.encryptObject({ id: gid, name: name });
+    const response = await fetch(OUR_BACKEND_URL + "/join", {
+      body: JSON.stringify({ encrypted: true, data: encryptedPayload }),
+      headers: {
+        "Content-Type": "application/json",
+        "X-Encrypted": "AES-GCM-256"
+      },
+      method: "POST",
+    });
+    
+    const responseText = await response.text();
+    try {
+      const parsed = JSON.parse(responseText);
+      if (parsed.encrypted && parsed.data) {
+        body = await CryptoModule.decryptObject(parsed.data);
+      } else {
+        body = parsed;
+      }
+    } catch {
+      body = JSON.parse(responseText);
+    }
+  }
+  
   updateStatus("Connecting to game...");
   if (body.success) {
     const liveApp = initializeApp(
@@ -2985,13 +3182,14 @@ function discordChatTest() {
   ws.onopen = () => {
     document.querySelector(".discordchat").innerHTML = "";
   };
-  function sendData(data) {
+  async function sendData(data) {
     if (isUserBanned()) {
       return;
     }
-    ws.send(JSON.stringify(data));
+    const encryptedData = await SecureWebSocket.createSecureMessage(data);
+    ws.send(JSON.stringify({ encrypted: true, data: encryptedData }));
     }
-  function sendMsg(name, content) {
+  async function sendMsg(name, content) {
     if (ws.readyState != 1) {
       return;
     }
@@ -3026,11 +3224,21 @@ function discordChatTest() {
         break;
     }
   }
-  function handleWs(msg) {
-    const data = JSON.parse(msg);
+  async function handleWs(msg) {
+    let data;
+    try {
+      const parsed = JSON.parse(msg);
+      if (parsed.encrypted && parsed.data) {
+        data = await SecureWebSocket.parseSecureMessage(parsed.data);
+      } else {
+        data = parsed;
+      }
+    } catch {
+      data = JSON.parse(msg);
+    }
+    
     switch (data.type) {
       case "error":
-        console.log(data.content);
         break;
       case "msg":
         handleMessage(data);
@@ -3057,9 +3265,7 @@ function discordChatTest() {
     ws.onmessage = (m) => {
       try {
         handleWs(m.data);
-      } catch (e) {
-        console.error(e);
-      }
+      } catch (e) {}
     };
     ws.onclose = discordConnect;
   }
@@ -3074,8 +3280,8 @@ function openExternalLink(url) {
   window.open(`https://${url}`, "_blank").focus();
 }
 
-function checkUsername() {
-  const username = localStorage.getItem("chatUsername");
+async function checkUsername() {
+  const username = await SecureStorage.get("chatUsername") || localStorage.getItem("chatUsername");
 
   if (!username) {
     initiateUsernameSetting();
@@ -3096,12 +3302,11 @@ function closediscordchat() {
   removablebox.remove();
 }
 
-function setUsername() {
+async function setUsername() {
   const usernameInput = document.getElementById("usernameinput");
 
-  console.log(usernameInput.value);
-
-  localStorage.setItem("chatUsername", `${usernameInput.value}`);
+  await SecureStorage.set("chatUsername", usernameInput.value);
+  localStorage.setItem("chatUsername", usernameInput.value);
 
   const signupcover = document.getElementById("signupcover");
 
