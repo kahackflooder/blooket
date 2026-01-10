@@ -2801,7 +2801,7 @@ async function loadBackendUrl() {
     const cachedUrl = await SecureStorage.get("backendUrl");
     if (cachedUrl && cachedUrl.url) {
       const cacheAge = Date.now() - (cachedUrl.timestamp || 0);
-      if (cacheAge < 300000) {
+      if (cacheAge < 60000) {
         OUR_BACKEND_URL = cachedUrl.url;
         backendUrlLoaded = true;
         updateBackendStatus(true);
@@ -2809,11 +2809,12 @@ async function loadBackendUrl() {
     }
   } catch (e) {}
   
+  const cacheBuster = Date.now();
   const urls = [
-    GITHUB_RAW_URL,
-    GITHUB_RAW_URL_ALT + '?t=' + Date.now(),
-    GITHUB_RAW_URL_ALT2 + '?t=' + Date.now(),
-    GITHUB_RAW_URL_ALT3 + '?t=' + Date.now()
+    GITHUB_RAW_URL + '?t=' + cacheBuster,
+    GITHUB_RAW_URL_ALT + '?t=' + cacheBuster,
+    GITHUB_RAW_URL_ALT2 + '?t=' + cacheBuster,
+    GITHUB_RAW_URL_ALT3 + '?t=' + cacheBuster
   ];
   
   for (const url of urls) {
